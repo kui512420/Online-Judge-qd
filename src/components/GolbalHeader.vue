@@ -1,6 +1,6 @@
 <template>
-  <a-row class="golbalHeader"  align="center" :wrap=false>
-    <a-col flex="auto" >
+  <a-row class="golbalHeader" align="center" :wrap=false>
+    <a-col flex="auto">
       <a-menu mode="horizontal" :default-selected-keys="['/']" @menu-item-click="toPathPage">
         <a-menu-item key="" :style="{ padding: 0, marginRight: '38px' }" disabled>
           <div class="logo-warpper">
@@ -8,14 +8,13 @@
             <div class="title">OJ 判题</div>
           </div>
         </a-menu-item>
-        <a-menu-item v-for="(item) in routes" :key=item.path >
+        <a-menu-item v-for="(item) in showMenus" :key=item.path>
           {{ item.name }}
         </a-menu-item>
-
       </a-menu>
     </a-col>
     <a-col flex="100px">
-      <div>{{ useStore.userType.status }}</div>
+      <div>{{ useStore.user.name }}</div>
     </a-col>
   </a-row>
 
@@ -24,19 +23,35 @@
 <script setup lang='ts'>
 import routes from '@/router/routes';
 import { useRouter } from 'vue-router';
-import { userStore } from '@/stores/counter'
+import { userStore } from '@/stores/user'
+import cheakAccess from '@/access/cheakAccess';
+import { computed } from 'vue';
 // 可以在组件中的任意位置访问 `store` 变量 ✨
 const useStore = userStore()
-
 const router = useRouter();
-const toPathPage = (key: string) => {
+const showMenus = computed(() => {
+  return routes.filter((item) => {
+
+    if (!cheakAccess(useStore.user, item?.meta?.access)) {
+      return false
+    }
+    if (item.meta?.isHidden) {
+      return false
+    }
+    return true
+  })
+})
+useStore.Login()
+
+const toPathPage = (key?: string) => {
   router.push({ path: key })
 }
 </script>
 <style scoped>
-.golbalHeader{
+.golbalHeader {
   box-shadow: #eee 1px 1px 5px;
 }
+
 .menu-demo {
   box-sizing: border-box;
   width: 100%;

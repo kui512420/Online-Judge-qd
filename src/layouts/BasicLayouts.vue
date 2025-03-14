@@ -7,7 +7,7 @@
       <a-layout-content class="content">
         <router-view></router-view>
       </a-layout-content>
-      <a-layout-footer class="footer">Footer</a-layout-footer>
+      <a-layout-footer class="footer"><a href="https://kuikui.space" target="_blank">猿分享 by 魁魁</a></a-layout-footer>
     </a-layout>
   </div>
 </template>
