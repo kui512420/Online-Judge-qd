@@ -35,6 +35,9 @@ const handleSubmit = ({ values, errors }) => {
 const form = reactive({
   name: '',
   password: '',
+  password2:'',
+  email:'',
+  match:""
 });
 const rules = {
   name: [
@@ -55,11 +58,11 @@ const rules = {
       message: '确认密码 是必填项',
     },
     {
-      validator: (value, cb) => {
+      validator: (value: string, cb: (arg0: string | undefined) => void) => {
         if (value !== form.password) {
           cb('两次密码输出不一致！')
         } else {
-          cb()
+          cb("")
         }
       }
     }

@@ -9,12 +9,17 @@ const routes:Array<RouteRecordRaw> =  [
     },
     children:[
       {
-        path:"/user/login",
-        name:"登录",
-        component: ()=>import("@/views/user/UserLoginView.vue")
+        path:"",
+        redirect:"登录",
+        name:"重定向"
       },
       {
-        path:"/user/register",
+        path:"login",
+        name:"登录",
+        component: ()=>import("@/views/user/UserLoginView.vue"),
+      },
+      {
+        path:"register",
         name:"注册",
         component: ()=>import("@/views/user/UseRegisterView.vue")
       }
@@ -27,9 +32,9 @@ const routes:Array<RouteRecordRaw> =  [
   },
 
   {
-    path:"/home",
+    path:"/questionBank",
     name:"题库",
-    component: ()=>import("@/views/SubjectView.vue")
+    component: ()=>import("@/views/QuestionBankView.vue")
   },
   {
     path:"/management",
@@ -38,6 +43,14 @@ const routes:Array<RouteRecordRaw> =  [
       access:AccessEnum.ADMIN
     },
     component: ()=>import("@/views/ManagementView.vue")
+  },
+  {
+    path:"/questionView/:id",
+    name:"题目作答页",
+    component: ()=>import("@/views/question/QuestionSubmitView.vue"),
+    meta:{
+      isHidden:true
+    },
   },
   {
     path:"/noAuth",

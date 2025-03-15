@@ -7,12 +7,9 @@ export const userStore = defineStore('user', () => {
     name:"未登录",
     role:AccessEnum.NOT_LOGIN
   })
+  const theme = false
   const Login = ()=>{
-    setTimeout(()=>{
-      user.value.role = AccessEnum.ADMIN
-      user.value.name = "魁魁"
-    },3000)
-    return 1
+
   }
-  return { user,Login }
+  return { user,theme,Login }
 })

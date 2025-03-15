@@ -1,4 +1,5 @@
 <template>
+
   <a-row class="golbalHeader" align="center" :wrap=false>
     <a-col flex="auto">
       <a-menu mode="horizontal" :default-selected-keys="['/']" @menu-item-click="toPathPage">
@@ -13,8 +14,33 @@
         </a-menu-item>
       </a-menu>
     </a-col>
-    <a-col flex="100px">
-      <div>{{ useStore.user.name }}</div>
+    <a-switch v-model="useStore.theme">
+      <template #checked-icon>
+        <icon-moon-fill />
+      </template>
+      <template #unchecked-icon>
+        <icon-sun-fill />
+      </template>
+    </a-switch>
+    <a-col flex="80px">
+      <div>
+        <template v-if="useStore.user.name==''">
+          <a-dropdown @select="handleSelect">
+            <a-avatar>
+              <img alt="avatar"
+                src="https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp" />
+            </a-avatar>
+            <template #content>
+              <a-doption>个人中心</a-doption>
+              <a-doption>退出登录</a-doption>
+            </template>
+          </a-dropdown>
+
+        </template>
+        <template v-else>
+          <a-button @click="goLoginPage">登录</a-button>
+        </template>
+      </div>
     </a-col>
   </a-row>
 
@@ -22,13 +48,20 @@
 
 <script setup lang='ts'>
 import routes from '@/router/routes';
-import { useRouter } from 'vue-router';
+import router from '@/router/index';
 import { userStore } from '@/stores/user'
 import cheakAccess from '@/access/cheakAccess';
+import {IconSunFill,IconMoonFill} from '@arco-design/web-vue/es/icon';
 import { computed } from 'vue';
 // 可以在组件中的任意位置访问 `store` 变量 ✨
 const useStore = userStore()
-const router = useRouter();
+const goLoginPage = ()=>{
+  router.replace('user/login')
+}
+const handleSelect = (event:string)=>{
+  console.log(event)
+}
+
 const showMenus = computed(() => {
   return routes.filter((item) => {
 

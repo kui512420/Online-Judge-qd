@@ -20,11 +20,10 @@ import GolbalHeader from '@/components/GolbalHeader.vue'
 
 .Wapper .content{
   padding: 20px;
-  background:linear-gradient(to right,red,blue)
 }
 .Wapper .footer{
-  background-color: gray;
   position: absolute;
+  padding: 15px;
   bottom: 0;
   left: 0;
   right: 0;
