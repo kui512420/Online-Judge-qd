@@ -13,7 +13,7 @@
     </div>
     <!-- 排行榜表格 -->
     <h1 class="leaderboard-title">排行榜</h1>
-    <a-table :data="leaderboardData" :columns="columns" :pagination="false">
+    <a-table :data="leaderboardData" :columns="columns" :pagination="true">
       <template #cell="{ record, index, column }">
         <template v-if="column.dataIndex === 'rank'">
           <span class="rank-number">{{ index + 1 }}</span>
@@ -51,6 +51,56 @@ const columns = ref([
 ]);
 // 模拟排行榜数据
 const leaderboardData = ref([
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
+  {
+    name: 'user123',
+    score: '小李飞刀',
+    time: 20,
+  },
   {
     name: 'user123',
     score: '小李飞刀',

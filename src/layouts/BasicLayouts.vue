@@ -20,9 +20,9 @@ import GolbalHeader from '@/components/GolbalHeader.vue'
 
 .Wapper .content{
   padding: 20px;
+  
 }
 .Wapper .footer{
-  position: absolute;
   padding: 15px;
   bottom: 0;
   left: 0;

@@ -53,10 +53,9 @@ import { userStore } from '@/stores/user'
 import cheakAccess from '@/access/cheakAccess';
 import {IconSunFill,IconMoonFill} from '@arco-design/web-vue/es/icon';
 import { computed } from 'vue';
-// 可以在组件中的任意位置访问 `store` 变量 ✨
 const useStore = userStore()
 const goLoginPage = ()=>{
-  router.replace('user/login')
+  router.push('user/login')
 }
 const handleSelect = (event:string)=>{
   console.log(event)
