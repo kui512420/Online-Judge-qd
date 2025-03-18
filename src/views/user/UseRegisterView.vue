@@ -45,8 +45,8 @@ const handleSubmit = () => {
     if(res.code===200){
       Notification.success(res.message)
       // 本地存储双token
-      localStorage.setItem("accessToken",res.data.accessToken)
-      localStorage.setItem("refreshToken",res.data.RefreshToken)
+      localStorage.setItem("AccessToken",res.data.accessToken)
+      localStorage.setItem("RefreshToken",res.data.RefreshToken)
       //返回首页
       router.push("/")
     }else{

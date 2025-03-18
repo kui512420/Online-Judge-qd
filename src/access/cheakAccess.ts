@@ -7,7 +7,7 @@ import AccessEnum from "./accessEnum"
  * @return boolean 返回是否通过权限校验
  */
 const cheakAccess = (loginUser:any,needAccess:any)=>{
-  const loginUserAccess = loginUser?.role??AccessEnum.NOT_LOGIN
+  const loginUserAccess = loginUser?.userRole??AccessEnum.NOT_LOGIN
 
   //需要的权限是无需登录，直接返回
   if(needAccess===AccessEnum.NOT_LOGIN){

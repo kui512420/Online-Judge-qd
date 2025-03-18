@@ -7,6 +7,7 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { BaseResponse_Map_object_object_ } from './models/BaseResponse_Map_object_object_';
 export type { BaseResponse_Map_string_string_ } from './models/BaseResponse_Map_string_string_';
 export type { BaseResponse_PageInfo_QuestionListVo_ } from './models/BaseResponse_PageInfo_QuestionListVo_';
 export type { BaseResponse_string_ } from './models/BaseResponse_string_';

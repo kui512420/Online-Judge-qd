@@ -36,12 +36,16 @@ const handleSubmit = () => {
   loginLoding.value = true
   UserControllerService.registerUsingPost({"user":form.name,"password":form.password,code:form.code}).then((res)=>{
     if(res.code===200){
-      Notification.success(res.message)
+      Notification.success({
+        title: '登录成功',
+        content: '',
+        position: 'bottomRight'
+      })
       // 本地存储双token
-      localStorage.setItem("accessToken",res.data.accessToken)
-      localStorage.setItem("refreshToken",res.data.RefreshToken)
+      localStorage.setItem("AccessToken",res.data.accessToken)
+      localStorage.setItem("RefreshToken",res.data.RefreshToken)
       //返回首页
-      router.push("/")
+      router.replace("/")
     }else{
       Notification.error(res.message)
     }

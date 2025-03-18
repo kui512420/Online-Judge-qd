@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BaseResponse_Map_object_object_ } from '../models/BaseResponse_Map_object_object_';
 import type { BaseResponse_Map_string_string_ } from '../models/BaseResponse_Map_string_string_';
 import type { BaseResponse_string_ } from '../models/BaseResponse_string_';
 import type { EmailRequest } from '../models/EmailRequest';
@@ -120,158 +121,6 @@ export class UserControllerService {
         });
     }
     /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingGet(
-        input?: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @returns any Created
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingPut(
-        input?: string,
-    ): CancelablePromise<string | any> {
-        return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @returns any Created
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingPost(
-        input?: string,
-    ): CancelablePromise<string | any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingDelete(
-        input?: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingOptions(
-        input?: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'OPTIONS',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingHead(
-        input?: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'HEAD',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-            },
-        });
-    }
-    /**
-     * checkCaptchaInter
-     * @param input input
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static checkCaptchaInterUsingPatch(
-        input?: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'PATCH',
-            url: '/api/user/check_captcha',
-            query: {
-                'input': input,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-            },
-        });
-    }
-    /**
      * sendEmail
      * @param requestBody
      * @returns BaseResponse_string_ OK
@@ -294,6 +143,24 @@ export class UserControllerService {
         });
     }
     /**
+     * getLogin
+     * @param accesstoken Accesstoken
+     * @returns BaseResponse_Map_object_object_ OK
+     * @throws ApiError
+     */
+    public static getLoginUsingGet(
+    ): CancelablePromise<BaseResponse_Map_object_object_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/get/login',
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+    /**
      * register
      * @param requestBody
      * @returns BaseResponse_Map_string_string_ OK
@@ -308,6 +175,24 @@ export class UserControllerService {
             url: '/api/user/login',
             body: requestBody,
             mediaType: 'application/json',
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+    /**
+     * refreshToken
+     * @param refreshToken RefreshToken
+     * @returns BaseResponse_Map_object_object_ OK
+     * @throws ApiError
+     */
+    public static refreshTokenUsingGet(
+    ): CancelablePromise<BaseResponse_Map_object_object_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/refreshToken',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

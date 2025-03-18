@@ -2,10 +2,7 @@
   <div class="leaderboard-container">
     <!-- 背景图片和文字区域 -->
     <div class="background-section">
-      <img
-        src="https://static.shiyanlou.com/algorithm-competition/1702369389670-算法赛背景2.png"
-        alt="背景图片"
-      />
+      <img src="https://static.shiyanlou.com/algorithm-competition/1702369389670-算法赛背景2.png" alt="背景图片" />
       <div class="text-overlay">
         <h2>战魂重燃，战友召集！</h2>
         <p>创造属于你的编程传奇！</p>
@@ -25,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
 
 // 表格列配置
 const columns = ref([
@@ -125,8 +123,6 @@ const leaderboardData = ref([
 </script>
 
 <style scoped>
-
-
 .background-section {
   position: relative;
   margin-bottom: 20px;
@@ -162,9 +158,11 @@ const leaderboardData = ref([
   font-weight: bold;
   color: #1677ff;
 }
+
 @media (max-width: 768px) {
   .text-overlay {
-    font-size: 10px; /* 手机屏幕字体大小 */
+    font-size: 10px;
+    /* 手机屏幕字体大小 */
   }
 }
 </style>

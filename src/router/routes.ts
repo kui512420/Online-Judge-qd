@@ -34,15 +34,26 @@ const routes:Array<RouteRecordRaw> =  [
   {
     path:"/questionBank",
     name:"题库",
-    component: ()=>import("@/views/QuestionBankView.vue")
+    component: ()=>import("@/views/QuestionBankView.vue"),
+    meta:{
+      access:AccessEnum.NOT_LOGIN
+    },
   },
   {
     path:"/management",
-    name:"管理",
+    name:"后台管理",
     meta:{
       access:AccessEnum.ADMIN
     },
-    component: ()=>import("@/views/ManagementView.vue")
+    component: ()=>import("@/layouts/ManagementLayouts.vue")
+  },
+  {
+    path:"/personalCenter",
+    name:"个人中心",
+    meta:{
+      isHidden:true
+    },
+    component: ()=>import("@/views/PersonalCenterView.vue")
   },
   {
     path:"/questionView/:id",
