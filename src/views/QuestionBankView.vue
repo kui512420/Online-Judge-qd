@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-table :data="data">
+    <a-table :data="data" :pagination="false">
       <template #columns>
         <a-table-column title="题目ID" data-index="id"></a-table-column>
         <a-table-column title="题目" data-index="title"></a-table-column>

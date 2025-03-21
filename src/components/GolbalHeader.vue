@@ -14,33 +14,9 @@
         </a-menu-item>
       </a-menu>
     </a-col>
-    <a-switch v-model="useStore.theme">
-      <template #checked-icon>
-        <icon-moon-fill />
-      </template>
-      <template #unchecked-icon>
-        <icon-sun-fill />
-      </template>
-    </a-switch>
+    <ThemeSwitch></ThemeSwitch>
     <a-col flex="80px">
-      <div>
-        <template v-if="useStore.user.userRole !== 'notLogin'">
-          <a-dropdown @select="handleSelect" trigger="hover">
-            <a-avatar>
-              <img alt="avatar"
-                src="https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp" />
-            </a-avatar>
-            <template #content>
-              <a-doption @click="toPersonCenter">个人中心</a-doption>
-              <a-doption @click="loginOUt">退出登录</a-doption>
-            </template>
-          </a-dropdown>
-
-        </template>
-        <template v-else>
-          <a-button @click="goLoginPage">登录</a-button>
-        </template>
-      </div>
+      <MyHeader  style="margin-left: 10px;"></MyHeader>
     </a-col>
   </a-row>
 
@@ -51,26 +27,15 @@ import routes from '@/router/routes';
 import router from '@/router/index';
 import { useUserStore } from '@/stores/userStore'
 import cheakAccess from '@/access/cheakAccess';
-import { IconSunFill, IconMoonFill } from '@arco-design/web-vue/es/icon';
-import { computed, onMounted } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import ThemeSwitch from './ThemeSwitch.vue';
+import MyHeader from './MyHeader.vue';
+import { computed } from 'vue';
+
 const useStore = useUserStore()
 import { useRoute } from 'vue-router';
-
 const route = useRoute();
-onMounted(()=>{
-  useStore.login()
-})
-const toPersonCenter =()=>{
-  router.push('/personalCenter')
-}
 
-const goLoginPage = () => {
-  router.push('user/login')
-}
-const handleSelect = (event: string) => {
-  console.log(event)
-}
+
 const showMenus = computed(() => {
   return routes.filter((item) => {
 
@@ -83,14 +48,8 @@ const showMenus = computed(() => {
     return true
   })
 })
-const loginOUt = () => {
-  useStore.user.userRole = 'notLogin'
-  localStorage.removeItem("AccessToken")
-  localStorage.removeItem("RefreshToken")
-  Message.success("退出登录")
-}
 
-const toPathPage = (key?: string) => {
+const toPathPage = (key: string) => {
   router.push({ path: key })
 }
 </script>

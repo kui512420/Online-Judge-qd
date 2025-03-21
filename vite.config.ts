@@ -27,5 +27,12 @@ export default defineConfig({
         changeOrigin: true,             // 解决跨域，修改请求源为后端地址
       },
     },
+    // 禁用缓存
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      usePolling: true,
+    },
   },
 })

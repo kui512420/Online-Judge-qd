@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import BasicLayouts from '@/layouts/BasicLayouts.vue'
 import UserLayouts from '@/layouts/UserLayouts.vue'
-import ManagementLayouts from './layouts/ManagementLayouts.vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/userStore'
 import { watch } from 'vue';
+
 const router = useRoute()
 const useStore = useUserStore()
-
+  useStore.login()
 watch(() => useStore.theme, () => {
   if (useStore.theme) {
     document.body.setAttribute('arco-theme', 'dark');
@@ -31,7 +31,7 @@ watch(() => useStore.theme, () => {
       <UserLayouts></UserLayouts>
     </template>
     <template v-else-if="router.path.startsWith('/management')">
-      <ManagementLayouts></ManagementLayouts>
+      <router-view></router-view>
     </template>
     <template v-else>
       <BasicLayouts></BasicLayouts>

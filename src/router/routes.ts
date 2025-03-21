@@ -45,7 +45,16 @@ const routes:Array<RouteRecordRaw> =  [
     meta:{
       access:AccessEnum.ADMIN
     },
-    component: ()=>import("@/layouts/ManagementLayouts.vue")
+    component: ()=>import("@/layouts/ManagementLayouts.vue"),
+    children:[
+      {
+        path:"",
+        redirect:"/management/index",
+        name:"managementRed"
+      },
+      {path:"index",name:"managementIndex",component:()=>import("@/views/management/IndexView.vue")},
+      {path:"user",name:"managementUser",component:()=>import("@/views/management/UserView.vue")}
+    ]
   },
   {
     path:"/personalCenter",
@@ -64,12 +73,12 @@ const routes:Array<RouteRecordRaw> =  [
     },
   },
   {
-    path:"/noAuth",
-    name:"401",
+    path:"/:pathMatch(.*)*",
+    name:"NoFind",
     meta:{
       isHidden:true
     },
-    component: ()=>import("@/views/NoAuthView.vue")
+    component: ()=>import("@/views/NoFindView.vue")
   }
 ]
 

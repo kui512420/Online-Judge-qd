@@ -2,7 +2,23 @@
   <div class="leaderboard-container">
     <!-- 背景图片和文字区域 -->
     <div class="background-section">
-      <img src="https://static.shiyanlou.com/algorithm-competition/1702369389670-算法赛背景2.png" alt="背景图片" />
+
+      <a-carousel :style="{
+        position: 'relative',
+        width: 'auto',
+        height: '240px',
+        zIndex: -1
+      }" :auto-play="true" animation-name="fade" show-arrow="never" :default-current="1">
+        <a-carousel-item v-for="image in images" :key="image">
+          <img :src="image" :style="{
+            width: '100%',
+            height:'100%'
+          }" />
+        </a-carousel-item>
+      </a-carousel>
+
+
+
       <div class="text-overlay">
         <h2>战魂重燃，战友召集！</h2>
         <p>创造属于你的编程传奇！</p>
@@ -22,7 +38,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-
+const images = ref([
+  "https://static.shiyanlou.com/algorithm-competition/1702369389670-算法赛背景2.png",
+  "../../assets/image.png"
+])
 
 // 表格列配置
 const columns = ref([
@@ -126,6 +145,7 @@ const leaderboardData = ref([
 .background-section {
   position: relative;
   margin-bottom: 20px;
+  z-index: 1000;
 }
 
 .background-section img {
@@ -143,6 +163,7 @@ const leaderboardData = ref([
   color: white;
   padding: 20px;
   border-radius: 8px;
+  z-index: 1;
 }
 
 .text-overlay h2 {

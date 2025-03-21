@@ -11,7 +11,7 @@
     </a-form-item>
     <a-form-item field="email" label="邮箱">
       <a-input v-model="form.email" placeholder="请输入您的邮箱" />
-      <a-button @click="sendEmail" :loading="sendLoding">{{ sendTitle }}</a-button>
+      <SendButton :email="form.email"></SendButton>
     </a-form-item>
     <a-form-item field="code" label="验证码">
       <a-input v-model="form.code" placeholder="请输入您的邮箱验证码" />
@@ -28,9 +28,9 @@ import router from '@/router';
 import { reactive, ref } from 'vue';
 import { UserControllerService } from '@/generated';
 import { Notification } from '@arco-design/web-vue';
-const sendLoding = ref(false)
+import SendButton from '@/components/email/SendButton.vue';
 const registerLoding = ref(false)
-const sendTitle = ref("发送验证码")
+
 
 const form = reactive({
   name: '',
@@ -55,29 +55,7 @@ const handleSubmit = () => {
     registerLoding.value = false
   })
 }
-//发送邮箱验证码
-const sendEmail = ()=>{
-  sendLoding.value = true
-  UserControllerService.sendEmailUsingPost({"email":form.email}).then((res)=>{
 
-    if(res.code===200){
-      Notification.success(res.message)
-      let time = 60000
-      const dsq = setInterval(() => {
-        sendTitle.value = (time-1000) / 1000 + "秒"
-        if (time <= 0) {
-          sendTitle.value = "发送验证码"
-          sendLoding.value = false
-          clearInterval(dsq)
-        }
-        time -= 1000
-      }, 1000)
-    }else{
-      sendLoding.value = false
-      Notification.error(res.message)
-    }
-  })
-}
 
 const rules = {
   name: [
