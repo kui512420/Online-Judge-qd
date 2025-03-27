@@ -51,12 +51,7 @@
           <MyHeader style="margin-left: 10px;"></MyHeader>
         </div>
       </a-layout-header>
-      <a-layout style="padding: 0 24px;">
-        <a-breadcrumb :style="{ margin: '16px 0' }">
-          <a-breadcrumb :style="{ margin: '16px 0' }">
-            <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">{{ item }}</a-breadcrumb-item>
-          </a-breadcrumb>
-        </a-breadcrumb>
+      <a-layout style="padding: 0 24px; margin-top: 20px;">
         <a-layout-content>
           <RouterView></RouterView>
         </a-layout-content>
@@ -80,23 +75,6 @@ import MyHeader from '@/components/MyHeader.vue';
 const collapsed = ref(false);
 const breadcrumbItems = ref<string[]>([]);
 
-// 路由映射表
-const routeMap: Record<string, string> = {
-  '/management/index': '首页',
-  '/management/user': '用户管理',
-  '/management/problem': '题目管理',
-  '/management/log': '日志管理',
-  '/management/contest': '竞赛管理'
-};
-
-// 监听路由变化
-watch(() => router.currentRoute.value.path, (newPath) => {
-  const paths = newPath.split('/').filter(Boolean);
-  breadcrumbItems.value = paths.map((path, index) => {
-    const fullPath = '/' + paths.slice(0, index + 1).join('/');
-    return routeMap[fullPath] || path;
-  });
-}, { immediate: true });
 
 const onCollapse = () => {
   collapsed.value = !collapsed.value;

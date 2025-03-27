@@ -7,7 +7,6 @@ import { watch } from 'vue';
 
 const router = useRoute()
 const useStore = useUserStore()
-  useStore.login()
 watch(() => useStore.theme, () => {
   if (useStore.theme) {
     document.body.setAttribute('arco-theme', 'dark');

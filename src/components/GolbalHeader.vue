@@ -5,8 +5,8 @@
       <a-menu mode="horizontal" :selected-keys="[route.path]" @menu-item-click="toPathPage">
         <a-menu-item key="" :style="{ padding: 0, marginRight: '38px' }" disabled>
           <div class="logo-warpper">
-            <img src="../assets/logo.svg" alt="">
-            <div class="title">OJ 判题</div>
+            <img src="../assets/logo.png" alt="">
+            <div class="title">KUIKUI OJ 判题</div>
           </div>
         </a-menu-item>
         <a-menu-item v-for="(item) in showMenus" :key=item.path>
@@ -16,7 +16,7 @@
     </a-col>
     <ThemeSwitch></ThemeSwitch>
     <a-col flex="80px">
-      <MyHeader  style="margin-left: 10px;"></MyHeader>
+      <MyHeader style="margin-left: 10px;"></MyHeader>
     </a-col>
   </a-row>
 
@@ -57,7 +57,11 @@ const toPathPage = (key: string) => {
 .golbalHeader {
   box-shadow: #eee 1px 1px 5px;
 }
-
+@media (max-width: 768px) {
+  .title {
+    display: none;
+  }
+}
 .menu-demo {
   box-sizing: border-box;
   width: 100%;

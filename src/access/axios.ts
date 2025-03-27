@@ -1,6 +1,8 @@
 import axios from "axios";
 import { UserControllerService } from "@/generated";
 const service = axios.create({
+  url:"http://127.0.0.1:5210",
+  withCredentials:true
 });
 
 // 添加请求拦截器
@@ -20,7 +22,8 @@ axios.interceptors.request.use(function (config) {
 axios.interceptors.response.use(async function (response) {
 
   if(response.data.code==40000){
-    const success = await UserControllerService.refreshTokenUsingGet()
+    const success = await UserControllerService.refreshTokenUsingGet(localStorage.getItem("RefreshToken")??"")
+    console.log(success)
     if (success) {
       localStorage.setItem("AccessToken",success.data?.accesstoken)
       response.config.headers = {
@@ -36,4 +39,5 @@ axios.interceptors.response.use(async function (response) {
   return Promise.reject(error);
 });
 
+export default service
 

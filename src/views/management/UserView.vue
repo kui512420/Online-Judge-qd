@@ -1,14 +1,11 @@
 <template>
   <div>
     <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <a-dropdown @select="handleSelect" :popup-max-height="false">
-        <a-button v-model="searchTitle">{{ searchTitle }} <icon-down /></a-button>
-        <template #content>
-          <a-doption>ID</a-doption>
-          <a-doption>账号</a-doption>
-          <a-doption>邮箱</a-doption>
-        </template>
-      </a-dropdown>
+      <a-select :style="{ width: '120px' }" placeholder="查询条件">
+        <a-option>ID</a-option>
+        <a-option>账号</a-option>
+        <a-option>邮箱</a-option>
+      </a-select>
       <a-input-search :style="{ width: '320px' }" placeholder="请输入数据" search-button />
       <a-button status="warning">
         <template #icon>
@@ -25,10 +22,10 @@
         重置
       </a-button>
     </div>
-    <a-table :columns="columns" :data="dataSource" :pagination="false" :row-selection="rowSelection"
+    <a-table :columns="columns" :data="dataSource" :column-resizable="true" :pagination="false" :row-selection="rowSelection"
       v-model:selectedKeys="selectedKeys">
-      <template #avatar="{ record }">
-        <a-image width="70" :src=record.avatar style="border-radius: 50%;"></a-image>
+      <template #userAvatar="{ record }">
+        <a-image width="70" :src=record.userAvatar style="border-radius: 50%;"></a-image>
       </template>
       <template #options="{ record }">
         <!-- 新增操作按钮 -->
@@ -39,19 +36,23 @@
       </template>
     </a-table>
 
-    <a-pagination style="justify-content: center; margin-top: 10px;" :total="50" show-total show-jumper
+    <a-pagination style="justify-content: center; margin-top: 10px;" :total=pagination.total show-total show-jumper
       show-page-size />
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { IconDown, IconDownload } from '@arco-design/web-vue/es/icon';
+import {  IconDownload } from '@arco-design/web-vue/es/icon';
+import { UserControllerService } from '@/generated';
 const rowSelection = reactive({
   type: 'checkbox',
   showCheckedAll: true,
   onlyCurrent: false,
 });
+const pagination = reactive({
+  total:0
+})
 const selectedKeys = ref([])
 const columns = ref([
   {
@@ -61,19 +62,19 @@ const columns = ref([
   },
   {
     title: '账号',
-    dataIndex: 'account',
-    key: 'account',
+    dataIndex: 'userAccount',
+    key: 'userAccount',
   },
   {
     title: '头像',
-    dataIndex: 'avatar',
-    key: 'avatar',
-    slotName: 'avatar',
+    dataIndex: 'userAvatar',
+    key: 'userAvatar',
+    slotName: 'userAvatar',
   },
   {
     title: '昵称',
-    dataIndex: 'nickname',
-    key: 'nickname',
+    dataIndex: 'userName',
+    key: 'userName',
   },
   {
     title: '邮箱',
@@ -82,23 +83,18 @@ const columns = ref([
   },
   {
     title: '角色',
-    dataIndex: 'role',
-    key: 'role',
-  },
-  {
-    title: '概括',
-    dataIndex: 'summary',
-    key: 'summary',
+    dataIndex: 'userRole',
+    key: 'userRole',
   },
   {
     title: '注册时间',
-    dataIndex: 'registerTime',
-    key: 'registerTime',
+    dataIndex: 'createTime',
+    key: 'createTime',
   },
   {
     title: '最后一次登录时间',
-    dataIndex: 'lastLoginTime',
-    key: 'lastLoginTime',
+    dataIndex: 'updateTime',
+    key: 'updateTime',
   },
   {
     title: '操作',
@@ -106,32 +102,18 @@ const columns = ref([
   },
 ]);
 
-const dataSource = ref([
-  {
-    id: 1,
-    account: 'user1',
-    // 确保图片链接有效
-    avatar: 'http://127.0.0.1:5210/favicon.ico',
-    nickname: '昵称1',
-    email: 'user1@example.com',
-    role: '普通用户',
-    summary: '这是用户1的概括',
-    registerTime: '2023-01-01 10:00:00',
-    lastLoginTime: '2023-01-02 11:00:00',
-  },
-  {
-    id: 2,
-    account: 'user2',
-    // 确保图片链接有效
-    avatar: 'https://dummyimage.com/50x50/000/fff',
-    nickname: '昵称2',
-    email: 'user2@example.com',
-    role: '管理员',
-    summary: '这是用户2的概括',
-    registerTime: '2023-02-01 11:00:00',
-    lastLoginTime: '2023-02-02 12:00:00',
-  },
-]);
+const dataSource = ref([]);
+const userList = ()=>{
+  UserControllerService.getUserListUsingGet(1,10,0).then((res)=>{
+    console.log(res)
+    if(res.code==200){
+      dataSource.value = res.data?.list
+
+      pagination.total = res.data?.total??0
+    }
+  })
+}
+userList()
 const searchTitle = ref('搜索条件')
 const handleSelect = (event: string) => {
   searchTitle.value = event

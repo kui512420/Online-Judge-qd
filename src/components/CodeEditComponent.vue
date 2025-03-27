@@ -1,6 +1,17 @@
 <template>
   <div class="wapper">
-    <div>
+    <a-split :style="{
+        height: 'auto',
+        width: '100%',
+        minWidth: '500px',
+        border: '1px solid var(--color-border)'
+      }"
+      v-model:size="size"
+      min="80px"
+    >
+      <template #first>
+        <a-typography-paragraph>
+          <div>
       <a-tabs default-active-key="1" size="large">
         <a-tab-pane key="1" title="题目">
           <a-list>
@@ -41,7 +52,12 @@
         </a-tab-pane>
       </a-tabs>
     </div>
-    <div>
+
+        </a-typography-paragraph>
+      </template>
+      <template #second>
+        <a-typography-paragraph>
+          <div>
       <div>
         <a-select v-model="selectedLanguage" placeholder="Please select ..." allow-clear>
           <a-option value="java">java</a-option>
@@ -49,15 +65,39 @@
           <a-option value="javascript">javascript</a-option>
         </a-select>
       </div>
-      <div id="container" style="width: 800px; height: 500px;"></div>
+      <div style="position: relative;">
+        <div id="container" style="width: auto; height: 600px;"></div>
+        <a-collapse  style="background-color: black; width: 100%;  z-index: 999; position: absolute; bottom: 0;">
+          <div style="width: 30%; margin: 0 auto;">
+            <a-button type="primary" status="warning">调试</a-button>
+            <a-button type="primary" style="margin-left: 20px;">提交检测</a-button>
+          </div>
+          <a-collapse-item header="打开调试器" key="1">
+            <a-tabs default-active-key="1">
+              <a-tab-pane key="1" title="测试用例">
+                <a-textarea placeholder="请输入测试用例" allow-clear />
+              </a-tab-pane>
+              <a-tab-pane key="2" title="代码执行结果">
+                <div>暂无执行结果</div>
+              </a-tab-pane>
+            </a-tabs>
+          </a-collapse-item>
+        </a-collapse>
+      </div>
+
     </div>
+        </a-typography-paragraph>
+      </template>
+    </a-split>
+
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import * as monaco from 'monaco-editor';
-
+const size = ref(0.35)
 // 定义选中的语言
 const selectedLanguage = ref('java');
 // 定义编辑器实例
@@ -119,7 +159,7 @@ const changeLanguage = () => {
     let codeValue = '';
     switch (selectedLanguage.value) {
       case 'java':
-        codeValue = `public class HelloWorld {
+        codeValue = `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, Java!");
         int x = 10;
@@ -159,11 +199,13 @@ watch(() => selectedLanguage, () => {
   flex-direction: row;
   justify-content: space-between;
 }
-.rule{
+
+.rule {
   margin-top: 10px;
   display: flex;
   justify-content: space-between;
 }
+
 /* 解决容器高度塌陷问题 */
 #container {
   border: 1px solid #e0e0e0;

@@ -8,6 +8,8 @@ const router = createRouter({
   routes: routes,
 })
 router.beforeEach((to, from, next) => {
+  const useStore = useUserStore()
+  useStore.login()
   // 检查是否为移动端访问 questionView
   if (to.path.startsWith("/questionView")) {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
