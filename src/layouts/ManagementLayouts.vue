@@ -2,7 +2,7 @@
   <a-layout class="layout-demo">
     <a-layout-sider hide-trigger collapsible :collapsed="collapsed">
       <div class="logo" @click="router.push('/')">
-        <div v-if="!collapsed" style="padding-left: 20px; padding-top: 10px; text-align: center; "> OJ 判题</div>
+        <div v-if="!collapsed" style="padding-left: 20px; padding-top: 10px; text-align: center; ">KUIKUI OJ</div>
       </div>
       <a-menu :defaultOpenKeys="['0_1']" :defaultSelectedKeys="['0_1']" :style="{ width: '100%' }">
 
@@ -98,8 +98,10 @@ const onCollapse = () => {
 .layout-demo :deep(.arco-layout-sider) .logo {
   height: 32px;
   margin: 12px 8px;
-  background: url('../assets/logo.svg');
+  background: url('../assets/logo.png');
+  background-size: contain;
   background-repeat: no-repeat;
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar {

@@ -1,12 +1,12 @@
 <template>
   <div>
     <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <a-select :style="{ width: '120px' }" placeholder="查询条件">
+      <a-select v-model="options" :style="{ width: '120px' }" placeholder="查询条件">
         <a-option>ID</a-option>
         <a-option>账号</a-option>
         <a-option>邮箱</a-option>
       </a-select>
-      <a-input-search :style="{ width: '320px' }" placeholder="请输入数据" search-button />
+      <a-input-search v-model="searchData" @click="search" :style="{ width: '320px' }" placeholder="请输入数据" search-button />
       <a-button status="warning">
         <template #icon>
           <icon-download></icon-download>
@@ -45,6 +45,7 @@
 import { reactive, ref } from 'vue';
 import {  IconDownload } from '@arco-design/web-vue/es/icon';
 import { UserControllerService } from '@/generated';
+import axios from 'axios';
 const rowSelection = reactive({
   type: 'checkbox',
   showCheckedAll: true,
@@ -53,6 +54,8 @@ const rowSelection = reactive({
 const pagination = reactive({
   total:0
 })
+const searchData = ref()
+const options = ref()
 const selectedKeys = ref([])
 const columns = ref([
   {
@@ -104,14 +107,35 @@ const columns = ref([
 
 const dataSource = ref([]);
 const userList = ()=>{
-  UserControllerService.getUserListUsingGet(1,10,0).then((res)=>{
-    console.log(res)
-    if(res.code==200){
-      dataSource.value = res.data?.list
 
+
+
+  UserControllerService.getUserListUsingGet("",0,1,10,0,"").then((res)=>{
+    console.log("*************")
+    console.log(JSON.parse(JSON.stringify(res.data)))
+    console.log("*************")
+    if(res.code==200){
+      dataSource.value = res.data?.records
       pagination.total = res.data?.total??0
     }
   })
+}
+const search = ()=>{
+  if(options.value=="ID"){
+    UserControllerService.getUserListUsingGet("",Number(searchData.value),1,10,1,"").then((res)=>{
+    console.log(res)
+    if(res.code==200){
+      dataSource.value = res.data?.list
+      pagination.total = res.data?.total??0
+    }
+  })
+  }else if(options.value=="账号"){
+
+  }else if(options.value=="邮箱"){
+
+  }else{
+
+  }
 }
 userList()
 const searchTitle = ref('搜索条件')

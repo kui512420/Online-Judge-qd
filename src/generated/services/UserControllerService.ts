@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { BaseResponse_Map_object_object_ } from '../models/BaseResponse_Map_object_object_';
 import type { BaseResponse_Map_string_string_ } from '../models/BaseResponse_Map_string_string_';
-import type { BaseResponse_PageInfo_User_ } from '../models/BaseResponse_PageInfo_User_';
+import type { BaseResponse_Page_User_ } from '../models/BaseResponse_Page_User_';
 import type { BaseResponse_string_ } from '../models/BaseResponse_string_';
 import type { EmailRequest } from '../models/EmailRequest';
 import type { UserLoginRequset } from '../models/UserLoginRequset';
@@ -234,24 +234,33 @@ export class UserControllerService {
     }
     /**
      * getUserList
+     * @param email
+     * @param id
      * @param page
      * @param size
      * @param type
-     * @returns BaseResponse_PageInfo_User_ OK
+     * @param userAccount
+     * @returns BaseResponse_Page_User_ OK
      * @throws ApiError
      */
     public static getUserListUsingGet(
+        email?: string,
+        id?: number,
         page?: number,
         size?: number,
         type?: number,
-    ): CancelablePromise<BaseResponse_PageInfo_User_> {
+        userAccount?: string,
+    ): CancelablePromise<BaseResponse_Page_User_> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/user/userList',
             query: {
+                'email': email,
+                'id': id,
                 'page': page,
                 'size': size,
                 'type': type,
+                'userAccount': userAccount,
             },
             errors: {
                 401: `Unauthorized`,

@@ -1,189 +1,174 @@
 <template>
-  <div class="leaderboard-container">
-    <!-- 背景图片和文字区域 -->
-    <div class="background-section">
+  <div class="">
+    <div class="page-one">
+      <div class="title title-up">
+        <h1 class="title-size">KUIKUI OJ</h1>
+      </div>
+      <div class="content-up">
+        <div class="desc">专注于算法竞赛的在线评测系统</div>
+        <div class="desc-add">为编程爱好者提供专业的算法训练平台</div>
+        <div class="btn-group">
+          <a-button @click="goQuestionBank" type="primary" status="success" class="btn-item">
+            <template #icon>
+              <icon-code />
+            </template>
+            <template #default>开始刷题</template>
+          </a-button>
 
-      <a-carousel :style="{
-        position: 'relative',
-        width: 'auto',
-        height: '240px',
-        zIndex: -1
-      }" :auto-play="true" animation-name="fade" show-arrow="never" :default-current="1">
-        <a-carousel-item v-for="image in images" :key="image">
-          <img :src="image" :style="{
-            width: '100%',
-            height:'100%'
-          }" />
-        </a-carousel-item>
-      </a-carousel>
+          <a-button type="primary" class="btn-item">
+            <template #icon>
+              <icon-trophy />
+            </template>
+            <template #default>参加比赛</template>
+          </a-button>
 
-
-
-      <div class="text-overlay">
-        <h2>战魂重燃，战友召集！</h2>
-        <p>创造属于你的编程传奇！</p>
+          <a-button type="primary" class="btn-item">
+            <template #icon>
+              <icon-bar-chart />
+            </template>
+            <template #default>查看排名</template>
+          </a-button>
+        </div>
       </div>
     </div>
-    <!-- 排行榜表格 -->
-    <h1 class="leaderboard-title">排行榜</h1>
-    <a-table :data="leaderboardData" :columns="columns" :pagination="true">
-      <template #cell="{ record, index, column }">
-        <template v-if="column.dataIndex === 'rank'">
-          <span class="rank-number">{{ index + 1 }}</span>
-        </template>
-      </template>
-    </a-table>
+
+    <div class="page-two">
+      <div>
+        <h3 class="title-size-two">功能特色</h3>
+        <a-carousel
+          :style="{
+            width: '100%',
+            height: '240px',
+            margin: '0 auto',
+          }"
+          :auto-play="true"
+          trigger="hover"
+          animation-name="fade"
+          show-arrow="never"
+        >
+          <a-carousel-item v-for="(item,index) in images" :key="index">
+
+             <div class="image-container">
+              <div>
+                <h2>{{item.title}}</h2>
+                <div>{{item.desc}}</div>
+                <ul>
+                  <li  v-for="(item2,index2) in item.list" :key="index2">{{item2}}</li>
+                </ul>
+              </div>
+
+            <img
+              :src="item.img"
+              :style="{
+                width: '60%',
+              }"
+            />
+             </div>
+          </a-carousel-item>
+        </a-carousel>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-const images = ref([
-  "https://static.shiyanlou.com/algorithm-competition/1702369389670-算法赛背景2.png",
-  "../../assets/image.png"
-])
+import { ref } from 'vue'
+import router from '@/router/index'
+import { IconCode, IconTrophy, IconBarChart} from '@arco-design/web-vue/es/icon'
+const images = [
+  {
+    img:"https://publicqn.saikr.com/saikr-oj/files_675aaad54d0f0.png",
+    title:"智能评测系统",
+    desc:"强大的评测引擎支持多种编程语言，毫秒级响应",
+    list:[
+      "支持 C/C++、Java、Python 等多种语言",
+      "实时评测反馈",
+      "详细的错误分析"
+    ]
+  }
 
-// 表格列配置
-const columns = ref([
-  {
-    title: '排名',
-    dataIndex: 'rank',
-    width: 80,
-  },
-  {
-    title: '账号',
-    dataIndex: 'name',
-    width: 150,
-  },
-  {
-    title: '昵称',
-    dataIndex: 'score',
-    width: 100,
-  },
-  {
-    title: '通过题数',
-    dataIndex: 'time',
-    width: 150,
-  },
-]);
-// 模拟排行榜数据
-const leaderboardData = ref([
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'user123',
-    score: '小李飞刀',
-    time: 20,
-  },
-  {
-    name: 'abcdef',
-    score: '独行侠',
-    time: 18,
-  },
-  {
-    name: 'testuser',
-    score: '暗夜猎手',
-    time: 15,
-  },
-  {
-    name: 'guest001',
-    score: '疾风剑豪',
-    time: 12,
-  },
-]);
+]
+const goQuestionBank = () => {
+  router.push('/questionBank')
+}
 </script>
 
 <style scoped>
-.background-section {
-  position: relative;
-  margin-bottom: 20px;
-  z-index: 1000;
+.title {
+  margin: 0 auto;
+  padding: 5px;
+  width: 250px;
+  border-bottom: 10px solid black;
 }
-
-.background-section img {
-  width: 100%;
-  height: auto;
-  display: block;
+.image-container {
+  display: flex;
+  justify-content: flex-end;
+  height: 100%;
 }
-
-.text-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.btn-group {
+  width: 50%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+}
+.page-one {
+  height: 600px;
   text-align: center;
-  color: white;
+}
+.desc-add {
+  padding: 40px;
+  font-size: 18px;
+}
+.desc {
+  color: #333;
+  font-size: 30px;
   padding: 20px;
-  border-radius: 8px;
-  z-index: 1;
 }
-
-.text-overlay h2 {
-  margin-bottom: 10px;
+.title-size {
+  font-size: 40px;
 }
-
-.leaderboard-title {
+.title-size-two {
+  font-size: 30px;
   text-align: center;
-  margin-bottom: 20px;
 }
-
-.rank-number {
-  font-weight: bold;
-  color: #1677ff;
-}
-
-@media (max-width: 768px) {
-  .text-overlay {
-    font-size: 10px;
-    /* 手机屏幕字体大小 */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
   }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@media (max-width: 768px) {
+  .title {
+    width: 200px;
+    border-bottom-width: 8px;
+  }
+  .desc {
+    font-size: 24px;
+  }
+  .desc-add {
+    font-size: 8px;
+  }
+  .title-size {
+    font-size: 32px;
+  }
+  .btn-group {
+    width: 80%;
+
+    flex-direction: column;
+    align-items: center;
+  }
+  .btn-group .btn-item {
+    margin-bottom: 10px;
+  }
+}
+.title-up {
+  animation: slide-up 0.5s ease-out;
+}
+.content-up {
+  animation: slide-up 0.8s ease-out;
 }
 </style>

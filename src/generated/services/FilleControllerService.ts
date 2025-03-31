@@ -24,6 +24,7 @@ export class FilleControllerService {
                 'Accesstoken': accesstoken,
             },
             body: requestBody,
+            mediaType: 'application/json',
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

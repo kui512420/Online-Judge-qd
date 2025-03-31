@@ -2,9 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserLoginRequset = {
-    code?: string;
-    password?: string;
-    user?: string;
+export type OrderItem = {
+    asc?: boolean;
+    column?: string;
 };
 

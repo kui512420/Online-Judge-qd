@@ -2,14 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type QuestionListVo = {
-    acceptedNum?: number;
-    createTime?: string;
+export type QuestionViewVo = {
+    content?: string;
     id?: number;
-    submitNum?: number;
-    tags?: string;
+    judgeCase?: string;
+    judgeConfig?: string;
     title?: string;
-    updateTime?: string;
-    userId?: number;
 };
 

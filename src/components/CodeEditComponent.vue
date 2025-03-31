@@ -1,91 +1,89 @@
 <template>
   <div class="wapper">
     <a-split :style="{
-        height: 'auto',
-        width: '100%',
-        minWidth: '500px',
-        border: '1px solid var(--color-border)'
-      }"
-      v-model:size="size"
-      min="80px"
-    >
+      height: 'auto',
+      width: '100%',
+      minWidth: '500px',
+      border: '1px solid var(--color-border)'
+    }" v-model:size="size" min="80px">
       <template #first>
         <a-typography-paragraph>
           <div>
-      <a-tabs default-active-key="1" size="large">
-        <a-tab-pane key="1" title="题目">
-          <a-list>
-            <template #header>
-              A+B
-            </template>
-            <a-list-item>
-              <div>
-                <h3>判题规则</h3>
-                <div class="rule">
-                  <div>时间限制 50000ms</div>
-                  <div>内存限制 5050kb</div>
-                  <div>堆栈限制 5050</div>
-                </div>
-              </div>
-              <div>
-                <h2>问题描述</h2>
-              </div>
-              <div>
-                <h2>输入格式</h2>
-              </div>
-              <div>
-                <h2>输出格式</h2>
-              </div>
-            </a-list-item>
-          </a-list>
-        </a-tab-pane>
-        <a-tab-pane key="2" title="评论">
-          评论
-        </a-tab-pane>
-        <a-tab-pane key="3">
-          <template #title>提交记录</template>
-          提交记录
-        </a-tab-pane>
-        <a-tab-pane key="4">
-          <template #title>AI小助手</template>
-          AI小助手
-        </a-tab-pane>
-      </a-tabs>
-    </div>
-
+            <a-tabs default-active-key="1" size="large">
+              <a-tab-pane key="1" title="题目">
+                <a-list>
+                  <template #header v-if="info">
+                    {{ info?.title }}
+                  </template>
+                  <a-list-item>
+                    <div v-if="info">
+                      <h3>判题规则</h3>
+                      <div class="rule">
+                        <div>时间限制 {{ JSON.parse(info?.judgeConfig || '{}').timeLimit }}ms</div>
+                        <div>内存限制 {{ JSON.parse(info?.judgeConfig || '{}').memoryLimit }}kb</div>
+                        <div>堆栈限制 5050</div>
+                      </div>
+                    </div>
+                    <div v-if="info">
+                      <h2>问题描述</h2>
+                      {{ info?.content }}
+                    </div>
+                    <div v-if="info">
+                      <h2>输入格式</h2>
+                      {{ JSON.parse(info.judgeCase)[0].input }}
+                    </div>
+                    <div v-if="info">
+                      <h2>输出格式</h2>
+                      {{ JSON.parse(info?.judgeCase || '{}')[0].output }}
+                    </div>
+                  </a-list-item>
+                </a-list>
+              </a-tab-pane>
+              <a-tab-pane key="2" title="评论">
+                评论
+              </a-tab-pane>
+              <a-tab-pane key="3">
+                <template #title>提交记录</template>
+                提交记录
+              </a-tab-pane>
+              <a-tab-pane key="4">
+                <template #title>AI小助手</template>
+                AI小助手
+              </a-tab-pane>
+            </a-tabs>
+          </div>
         </a-typography-paragraph>
       </template>
       <template #second>
         <a-typography-paragraph>
           <div>
-      <div>
-        <a-select v-model="selectedLanguage" placeholder="Please select ..." allow-clear>
-          <a-option value="java">java</a-option>
-          <a-option value="python">python</a-option>
-          <a-option value="javascript">javascript</a-option>
-        </a-select>
-      </div>
-      <div style="position: relative;">
-        <div id="container" style="width: auto; height: 600px;"></div>
-        <a-collapse  style="background-color: black; width: 100%;  z-index: 999; position: absolute; bottom: 0;">
-          <div style="width: 30%; margin: 0 auto;">
-            <a-button type="primary" status="warning">调试</a-button>
-            <a-button type="primary" style="margin-left: 20px;">提交检测</a-button>
+            <div>
+              <a-select v-model="selectedLanguage" placeholder="Please select ..." allow-clear>
+                <a-option value="java">java</a-option>
+                <a-option value="python">python</a-option>
+                <a-option value="javascript">javascript</a-option>
+              </a-select>
+            </div>
+            <div style="position: relative;">
+              <div id="container" style="width: auto; height: 600px;"></div>
+              <a-collapse style="background-color: black; width: 100%;  z-index: 999; position: absolute; bottom: 0;">
+                <div style="width: 30%; margin: 0 auto;">
+                  <a-button type="primary" status="warning">调试</a-button>
+                  <a-button type="primary" style="margin-left: 20px;">提交检测</a-button>
+                </div>
+                <a-collapse-item header="打开调试器" key="1">
+                  <a-tabs default-active-key="1">
+                    <a-tab-pane key="1" title="测试用例">
+                      <a-textarea placeholder="请输入测试用例" allow-clear />
+                    </a-tab-pane>
+                    <a-tab-pane key="2" title="代码执行结果">
+                      <div>暂无执行结果</div>
+                    </a-tab-pane>
+                  </a-tabs>
+                </a-collapse-item>
+              </a-collapse>
+            </div>
           </div>
-          <a-collapse-item header="打开调试器" key="1">
-            <a-tabs default-active-key="1">
-              <a-tab-pane key="1" title="测试用例">
-                <a-textarea placeholder="请输入测试用例" allow-clear />
-              </a-tab-pane>
-              <a-tab-pane key="2" title="代码执行结果">
-                <div>暂无执行结果</div>
-              </a-tab-pane>
-            </a-tabs>
-          </a-collapse-item>
-        </a-collapse>
-      </div>
-
-    </div>
         </a-typography-paragraph>
       </template>
     </a-split>
@@ -97,13 +95,33 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import * as monaco from 'monaco-editor';
+import { useRoute } from 'vue-router'
+import { QuestionControllerService } from '@/generated';
+const route = useRoute()
 const size = ref(0.35)
+const info = ref()
+const loading = ref(false)
+
+// 获取数据
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const res = await QuestionControllerService.questionInfoUsingGet(Number(route.params.id))
+    info.value = res.data
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 // 定义选中的语言
 const selectedLanguage = ref('java');
 // 定义编辑器实例
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
 onMounted(() => {
+
+  fetchData()
   const container = document.getElementById('container');
   if (!container) return;
 

@@ -17,12 +17,19 @@ import GolbalHeader from '@/components/GolbalHeader.vue'
 
 </script>
 <style scoped>
-
-.Wapper .content{
-  padding: 20px;
-  
+.header {
+  position: sticky;
+  z-index: 100;
+  top: 0;
+  left: 0;
 }
-.Wapper .footer{
+
+.Wapper .content {
+  padding: 20px;
+
+}
+
+.Wapper .footer {
   padding: 15px;
   bottom: 0;
   left: 0;
