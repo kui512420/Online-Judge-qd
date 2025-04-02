@@ -40,6 +40,22 @@ const routes:Array<RouteRecordRaw> =  [
     },
   },
   {
+    path:"/competition",
+    name:"竞赛",
+    component: ()=>import("@/views/CompetitionView.vue"),
+    meta:{
+      access:AccessEnum.NOT_LOGIN
+    },
+  },
+  {
+    path:"/rankingList",
+    name:"排行榜",
+    component: ()=>import("@/views/CompetitionView.vue"),
+    meta:{
+      access:AccessEnum.NOT_LOGIN
+    },
+  },
+  {
     path:"/management",
     name:"后台管理",
     meta:{

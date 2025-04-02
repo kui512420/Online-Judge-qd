@@ -5,7 +5,7 @@
 export type User = {
     createTime?: string;
     email?: string;
-    id?: number;
+    id?: string;
     isDelete?: number;
     updateTime?: string;
     userAccount?: string;

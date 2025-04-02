@@ -42,7 +42,7 @@
       show-page-size />
     </div>
     <div class="content-right">
-      <div :style="{ display: 'flex' }">
+      <div class="card-list">
         <a-card :style="{ width: '360px' }" title="提交统计最近30天" class="hover-commit">
           <div class="commit">
             <div>
@@ -61,6 +61,9 @@
               <div>通过率</div>
             </div>
           </div>
+        </a-card>
+        <a-card :style="{ width: '360px',marginTop:'20px' }" title="题目标签按标签筛选" class="hover-commit">
+          <a-tag class="tag-class" v-for="(item,index) in tags" :key="index">{{item}}</a-tag>
         </a-card>
       </div>
     </div>
@@ -87,6 +90,29 @@ const total = ref(0)
 const isFilter1Selected = ref(false);
 // 用于跟踪第二个 div 是否被选中
 const isFilter2Selected = ref(false);
+
+const tags = ref([
+  "排序算法",
+  "搜索算法",
+  "图算法",
+  "动态规划",
+  "贪心算法",
+  "分治算法",
+  "回溯算法",
+  "深度优先搜索",
+  "广度优先搜索",
+  "哈希算法",
+  "递归算法",
+  "最短路径算法",
+  "最小生成树算法",
+  "字符串匹配算法",
+  "数值计算算法",
+  "机器学习算法",
+  "深度学习算法",
+  "遗传算法",
+  "蚁群算法",
+  "模拟退火算法"
+]);
 
 const selectFilter = (filterIndex:number) => {
   // 重置所有的选中状态
@@ -123,6 +149,10 @@ const getRandomColor = () => {
 </script>
 
 <style scoped>
+.tag-class{
+  margin: 5px;
+  cursor: pointer;
+}
 .commit {
   display: flex;
   justify-content: space-around;
@@ -132,7 +162,10 @@ const getRandomColor = () => {
   border-radius: 10px;
   background-color: #f8f9fa;
 }
-
+.card-list{
+  display: flex;
+  flex-direction: column;
+}
 .filter-hover {
   padding: 10px;
   cursor: pointer;

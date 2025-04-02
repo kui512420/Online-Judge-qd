@@ -24,7 +24,13 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8080',  // 后端服务地址（不带路径）
+        rewrite: (path) => path.replace(/^\/management/, ''),
         changeOrigin: true        // 解决跨域，修改请求源为后端地址
+      },
+      '/management/api': {
+        target: 'http://127.0.0.1:8080',
+        rewrite: (path) => path.replace(/^\/management/, ''),
+        changeOrigin: true
       }
     },
     // 禁用缓存

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BaseResponse_boolean_ } from '../models/BaseResponse_boolean_';
 import type { BaseResponse_Map_object_object_ } from '../models/BaseResponse_Map_object_object_';
 import type { BaseResponse_Map_string_string_ } from '../models/BaseResponse_Map_string_string_';
 import type { BaseResponse_Page_User_ } from '../models/BaseResponse_Page_User_';
@@ -229,6 +230,27 @@ export class UserControllerService {
                 401: `Unauthorized`,
                 403: `Forbidden`,
                 404: `Not Found`,
+            },
+        });
+    }
+    /**
+     * deleteUser
+     * @param id id
+     * @returns BaseResponse_boolean_ OK
+     * @throws ApiError
+     */
+    public static deleteUserUsingDelete(
+        id: number,
+    ): CancelablePromise<BaseResponse_boolean_> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/user/user/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
             },
         });
     }
