@@ -1,7 +1,7 @@
 <template>
   <div class="wapper">
     <div class="content-left">
-      <a-input placeholder="搜索题目编号或标题" allow-clear />
+      <a-input placeholder="搜索题目编号或标题" allow-clear v-model="searchData" />
       <a-card style="margin: 20px 0;">
         <div class="filter">
           <div style="  padding: 10px;">排序</div>
@@ -15,31 +15,39 @@
           </div>
         </div>
       </a-card>
-      <a-table :data="data" :pagination="false">
+      <a-table :data="data" :pagination="false"  row-key="id" >
         <template #columns>
-          <a-table-column title="题目ID" data-index="id"></a-table-column>
-          <a-table-column title="题目" data-index="title"></a-table-column>
+          <a-table-column title="题目ID" data-index="id" key="id"></a-table-column>
+          <a-table-column
+      title="题目"
+      data-index="title"
+      :width="100"
+    >
+      <template #cell="{ record }">
+        <div class="ellipsis-text">{{ record.title }}</div>
+      </template>
+    </a-table-column>
           <a-table-column title="标签" data-index="tags">
             <template #cell="{ record }">
               <a-tag :color="getRandomColor()" v-for="(item, index) in JSON.parse(record.tags)" :key="index" bordered>{{
                 item }}</a-tag>
             </template>
           </a-table-column>
-          <a-table-column title="通过率" data-index="completionRate">
+          <a-table-column title="通过率">
             <template #cell="{ record }">
               {{ ((record.acceptedNum / record.submitNum).toFixed(2)) }}
             </template>
           </a-table-column>
           <a-table-column title="挑战人数" data-index="submitNum"></a-table-column>
-          <a-table-column title="操作" data-index="options">
+          <a-table-column title="操作" >
             <template #cell="{ record }">
               <a-button @click="handleDo(record.id)">开始挑战</a-button>
             </template>
           </a-table-column>
         </template>
       </a-table>
-      <a-pagination style="justify-content: center; margin-top: 10px;" :total=total show-total show-jumper
-      show-page-size />
+      <a-pagination style="justify-content: center; margin-top: 10px;" v-model:page-size="pageSize"
+      :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
     </div>
     <div class="content-right">
       <div class="card-list">
@@ -62,8 +70,12 @@
             </div>
           </div>
         </a-card>
-        <a-card :style="{ width: '360px',marginTop:'20px' }" title="题目标签按标签筛选" class="hover-commit">
-          <a-tag class="tag-class" v-for="(item,index) in tags" :key="index">{{item}}</a-tag>
+        <a-card :style="{ width: '360px', marginTop: '20px' }" title="题目标签按标签筛选" class="hover-commit">
+          <a-tag class="tag-class" v-for="(item, index) in tags" :key="index"
+            :style="{ color: selectedTags.includes(item) ? 'white' : 'black', backgroundColor: selectedTags.includes(item) ? '#2d8cf0' : 'transparent' }"
+            @click="handleTagClick(item)">
+            {{ item }}
+          </a-tag>
         </a-card>
       </div>
     </div>
@@ -73,19 +85,26 @@
 
 <script setup lang="ts">
 import router from '@/router';
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { QuestionControllerService } from '@/generated';
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon'
 // 封装 Question 类型
 interface QuestionListVo {
-  id: bigint;
+  id: string;
   name: string;
   tags: string[];
   completionRate: number;
   submitNum: number;
 }
+const pagination = reactive({
+  total: 0
+})
+const pageSize = ref(5)
+const pageSizes = ref([5, 10, 20, 30, 50])
+const searchData = ref('')
 const data = ref<QuestionListVo[] | undefined>(undefined);
 const total = ref(0)
+const selectedTags = ref([]);
 // 用于跟踪第一个 div 是否被选中
 const isFilter1Selected = ref(false);
 // 用于跟踪第二个 div 是否被选中
@@ -113,8 +132,37 @@ const tags = ref([
   "蚁群算法",
   "模拟退火算法"
 ]);
+watch(pageSize, () => {
+  getList()
+})
+// 处理标签点击事件的函数
+const handleTagClick = (tag) => {
 
-const selectFilter = (filterIndex:number) => {
+  const index = selectedTags.value.indexOf(tag);
+  if (index > -1) {
+    // 如果标签已选中，将其从选中列表中移除
+    selectedTags.value.splice(index, 1);
+  } else {
+    // 如果标签未选中，将其添加到选中列表中
+    selectedTags.value.push(tag);
+  }
+
+  QuestionControllerService.questionsUsingGet(3, 1, 10,0,"",JSON.stringify(selectedTags.value)).then((res) => {
+    data.value = res.data!.records
+    total.value = res.data!.total
+  })
+  if(selectedTags.value.length<=0){
+    getList()
+  }
+};
+
+const change = (e) => {
+  QuestionControllerService.questionsUsingGet(0, e, pageSize.value).then((res) => {
+    data.value = res.data!.records
+    pagination.total= res.data!.total
+  })
+}
+const selectFilter = (filterIndex: number) => {
   // 重置所有的选中状态
   isFilter1Selected.value = false;
   isFilter2Selected.value = false;
@@ -127,9 +175,9 @@ const selectFilter = (filterIndex:number) => {
   }
 };
 const getList = () => {
-  QuestionControllerService.questionsUsingGet(1, 10).then((res) => {
+  QuestionControllerService.questionsUsingGet(0, 1, pageSize.value).then((res) => {
     data.value = res.data!.records
-    total.value = res.data!.total
+    pagination.total  = res.data!.total
   })
 }
 getList()
@@ -146,13 +194,30 @@ const getRandomColor = () => {
   }
   return color;
 };
+watch(searchData, () => {
+  if(searchData.value==""){
+    getList()
+  }
+  if (Number.isNaN(Number(searchData.value))) {
+    QuestionControllerService.questionsUsingGet(2, 1, 10,0,searchData.value).then((res) => {
+      data.value = res.data!.records
+      total.value = res.data!.total
+    })
+  } else {
+    QuestionControllerService.questionsUsingGet(1, 1, 10,Number(searchData.value)).then((res) => {
+      data.value = res.data!.records
+      total.value = res.data!.total
+    })
+  }
+})
 </script>
 
 <style scoped>
-.tag-class{
+.tag-class {
   margin: 5px;
   cursor: pointer;
 }
+
 .commit {
   display: flex;
   justify-content: space-around;
@@ -162,10 +227,12 @@ const getRandomColor = () => {
   border-radius: 10px;
   background-color: #f8f9fa;
 }
-.card-list{
+
+.card-list {
   display: flex;
   flex-direction: column;
 }
+
 .filter-hover {
   padding: 10px;
   cursor: pointer;
@@ -196,7 +263,12 @@ const getRandomColor = () => {
   width: 100%;
   justify-content: space-around;
 }
-
+.ellipsis-text {
+  white-space: nowrap;       /* 禁止换行 */
+  overflow: hidden;          /* 隐藏溢出内容 */
+  text-overflow: ellipsis;   /* 显示省略号 */
+  max-width: 100px;          /* 与列宽一致 */
+}
 @media(max-width: 768px) {
   .wapper {
     display: flex;

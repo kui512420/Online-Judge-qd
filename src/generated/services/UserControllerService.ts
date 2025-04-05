@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BaseResponse_boolean_ } from '../models/BaseResponse_boolean_';
+import type { BaseResponse_int_ } from '../models/BaseResponse_int_';
 import type { BaseResponse_Map_object_object_ } from '../models/BaseResponse_Map_object_object_';
 import type { BaseResponse_Map_string_string_ } from '../models/BaseResponse_Map_string_string_';
 import type { BaseResponse_Page_User_ } from '../models/BaseResponse_Page_User_';
@@ -146,6 +147,22 @@ export class UserControllerService {
         });
     }
     /**
+     * export
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static exportUsingPost(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/user/export',
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+    /**
      * getLogin
      * @param accesstoken Accesstoken
      * @returns BaseResponse_Map_object_object_ OK
@@ -234,6 +251,26 @@ export class UserControllerService {
         });
     }
     /**
+     * deleteUsers
+     * @param requestBody
+     * @returns BaseResponse_boolean_ OK
+     * @throws ApiError
+     */
+    public static deleteUsersUsingDelete(
+        requestBody?: Array<number>,
+    ): CancelablePromise<BaseResponse_boolean_> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/user/user',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+            },
+        });
+    }
+    /**
      * deleteUser
      * @param id id
      * @returns BaseResponse_boolean_ OK
@@ -251,6 +288,32 @@ export class UserControllerService {
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,
+            },
+        });
+    }
+    /**
+     * putUserRole
+     * @param id id
+     * @param userRole userRole
+     * @returns BaseResponse_int_ OK
+     * @returns any Created
+     * @throws ApiError
+     */
+    public static putUserRoleUsingPut(
+        id: number,
+        userRole: string,
+    ): CancelablePromise<BaseResponse_int_ | any> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/user/user/{id}/{userRole}',
+            path: {
+                'id': id,
+                'userRole': userRole,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
             },
         });
     }

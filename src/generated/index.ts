@@ -8,6 +8,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { BaseResponse_boolean_ } from './models/BaseResponse_boolean_';
+export type { BaseResponse_int_ } from './models/BaseResponse_int_';
 export type { BaseResponse_Map_object_object_ } from './models/BaseResponse_Map_object_object_';
 export type { BaseResponse_Map_string_string_ } from './models/BaseResponse_Map_string_string_';
 export type { BaseResponse_Page_QuestionListVo_ } from './models/BaseResponse_Page_QuestionListVo_';
@@ -19,6 +20,7 @@ export type { OrderItem } from './models/OrderItem';
 export type { Page_QuestionListVo_ } from './models/Page_QuestionListVo_';
 export type { Page_User_ } from './models/Page_User_';
 export type { QuestionListVo } from './models/QuestionListVo';
+export type { QuestionPostRequest } from './models/QuestionPostRequest';
 export type { QuestionViewVo } from './models/QuestionViewVo';
 export type { User } from './models/User';
 export type { UserLoginRequset } from './models/UserLoginRequset';

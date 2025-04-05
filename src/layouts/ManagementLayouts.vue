@@ -15,26 +15,36 @@
 
         <router-link to="/management/user">
           <a-menu-item key="0_2">
-            <IconCalendar />
+            <icon-user />
             用户管理
           </a-menu-item>
         </router-link>
-        <router-link to="/management/problem">
-          <a-menu-item key="0_3">
-            <IconCalendar />
-            题目管理
-          </a-menu-item>
+        <router-link to="/management/question">
+          <a-sub-menu key="0_3">
+            <template #title>
+              <icon-code />
+              题目管理
+            </template>
+            <a-menu-item key="0_3_1">
+              题目列表
+            </a-menu-item>
+            <router-link to="/management/question/put">
+              <a-menu-item key="0_3_2">
+                添加题目
+              </a-menu-item>
+            </router-link>
+          </a-sub-menu>
         </router-link>
         <router-link to="/management/log">
           <a-menu-item key="0_4">
-            <IconCalendar />
-            日志管理
+            <icon-computer />
+            竞赛管理
           </a-menu-item>
         </router-link>
         <router-link to="/management/contest">
           <a-menu-item key="0_5">
             <IconCalendar />
-            竞赛管理
+            日志管理
           </a-menu-item>
         </router-link>
       </a-menu>
@@ -61,11 +71,14 @@
   </a-layout>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import {
+  IconHome,
+  IconUser,
   IconCaretRight,
   IconCaretLeft,
-  IconHome,
+  IconCode,
+  IconComputer,
   IconCalendar,
 } from '@arco-design/web-vue/es/icon';
 import router from '@/router';

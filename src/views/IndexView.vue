@@ -35,19 +35,12 @@
     <div class="page-two">
       <div>
         <h3 class="title-size-two">功能特色</h3>
-        <a-carousel
-          :style="{
-            width: '60%',
-            height: '320px',
-            margin: '0 auto',
-          }"
-          :auto-play="true"
-          trigger="hover"
-          indicator-class=""
-          animation-name="fade"
-          show-arrow="never"
-          indicator-position="outer"
-        >
+        <a-carousel :style="{
+          width: '60%',
+          height: '320px',
+          margin: '0 auto',
+        }" :auto-play="true" trigger="hover" indicator-class="" animation-name="fade" show-arrow="never"
+          indicator-position="outer">
           <a-carousel-item v-for="(item, index) in images" :key="index">
             <div class="image-container">
               <div>
@@ -89,7 +82,7 @@
           </div>
         </a-card>
         <a-card>
-          <div class="card-cast" >
+          <div class="card-cast">
             <div class="card-cast-icon">🏆</div>
             <div class="card-cast-title"><b>专业比赛</b></div>
             <div>支持多种比赛模式</div>
@@ -120,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import router from '@/router/index'
 import { IconCode, IconTrophy, IconBarChart, IconDoubleRight } from '@arco-design/web-vue/es/icon'
 const images = [
@@ -146,7 +139,7 @@ const isAn = ref(false)
 const handleScroll = () => {
   scrollHeight.value = window.scrollY;
   console.log(scrollHeight.value)
-  if(scrollHeight.value>420){
+  if (scrollHeight.value > 420) {
     isAn.value = true
   }
 };
@@ -161,10 +154,10 @@ onUnmounted(() => {
 const goQuestionBank = () => {
   router.push('/questionBank')
 }
-const goRankingList = ()=>{
+const goRankingList = () => {
   router.push('/rankingList')
 }
-const goCompetition = ()=>{
+const goCompetition = () => {
   router.push('/competition')
 }
 </script>
@@ -175,29 +168,36 @@ const goCompetition = ()=>{
   display: flex;
   justify-content: space-around;
 }
-.toUp{
-   animation: slide-up 0.8s ease-out;
+
+.toUp {
+  animation: slide-up 0.8s ease-out;
 }
+
 .card-cast {
   text-align: center;
   padding: 0 60px;
 }
+
 .card-cast:hover {
- box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 .card-cast-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
+
 .card-cast-list li {
   padding: 8px;
   border-bottom: 1px solid #eeeeee;
 }
+
 .card-cast-title {
   font-size: 20px;
   padding: 20px;
 }
+
 .card-cast-icon {
   font-size: 40px;
   padding: 20px;
@@ -207,9 +207,11 @@ const goCompetition = ()=>{
   text-decoration: none;
   color: #22bfa7;
 }
+
 .link {
   text-decoration: none;
 }
+
 .link-icon {
   display: inline-block;
   width: 20px;
@@ -224,19 +226,23 @@ const goCompetition = ()=>{
 .fun-img {
   width: 40%;
 }
-::v-deep .arco-image-img {
+
+:v-deep .arco-image-img {
   width: 100% !important;
   height: 100% !important;
 }
-::v-deep .arco-carousel-indicator-wrapper-bottom {
+
+:v-deep .arco-carousel-indicator-wrapper-bottom {
   background: #fff;
 }
+
 .title {
   margin: 0 auto;
   padding: 5px;
   width: 250px;
   border-bottom: 10px solid black;
 }
+
 .image-container {
   width: 100%;
   height: 100%;
@@ -244,41 +250,50 @@ const goCompetition = ()=>{
   align-items: center;
   justify-content: space-between;
 }
+
 .btn-group {
   width: 50%;
   margin: 0 auto;
   display: flex;
   justify-content: space-around;
 }
+
 .page-one {
   height: 600px;
   text-align: center;
 }
-.page-three{
+
+.page-three {
   width: 70%;
   margin: 0 auto;
 }
+
 .desc-add {
   padding: 40px;
   font-size: 18px;
 }
+
 .desc {
   color: #333;
   font-size: 30px;
   padding: 20px;
 }
+
 .title-size {
   font-size: 40px;
 }
+
 .title-size-two {
   font-size: 30px;
   text-align: center;
 }
+
 @keyframes slide-up {
   from {
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -287,42 +302,52 @@ const goCompetition = ()=>{
 
 @media (max-width: 768px) {
   .card-wapper {
-  display: flex;
-  flex-direction: column;
-}
+    display: flex;
+    flex-direction: column;
+  }
+
   .title {
     width: 200px;
     border-bottom-width: 8px;
   }
+
   .fun-img {
     width: 100%;
   }
+
   .image-container {
     display: flex;
     flex-direction: column;
   }
+
   .desc {
     font-size: 24px;
   }
+
   .desc-add {
     font-size: 8px;
   }
+
   .title-size {
     font-size: 32px;
   }
+
   .btn-group {
     width: 80%;
 
     flex-direction: column;
     align-items: center;
   }
+
   .btn-group .btn-item {
     margin-bottom: 10px;
   }
 }
+
 .title-up {
   animation: slide-up 0.5s ease-out;
 }
+
 .content-up {
   animation: slide-up 0.8s ease-out;
 }

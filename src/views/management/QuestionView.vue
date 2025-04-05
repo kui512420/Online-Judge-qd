@@ -23,8 +23,8 @@
         重置
       </a-button>
     </div>
-    <a-table :columns="columns" row-key="id" :data="dataSource" column-resizable :bordered="{ cell: true }" :pagination="false"
-      :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" >
+    <a-table :columns="columns" row-key="id" :data="dataSource" column-resizable :bordered="{ cell: true }"
+      :pagination="false" :row-selection="rowSelection" v-model:selectedKeys="selectedKeys">
       <template #id="{ record }">
         <a-trigger class="ellipsis" position="top" auto-fit-position :unmount-on-close="false">
           <div>{{ record.id }}</div>
@@ -35,13 +35,21 @@
           </template>
         </a-trigger>
       </template>
-      <template #userAvatar="{ record }">
-        <a-image width="70" :src="'http://127.0.0.1:5210/' + record.userAvatar" style="border-radius: 50%;"></a-image>
+      <template #title="{ record }">
+        <div class="ellipsis">
+          <a-trigger position="top" auto-fit-position :unmount-on-close="false">
+            <div>{{ record.title }}</div>
+            <template #content>
+              <div class="demo-basic">
+                {{ record.title }}
+              </div>
+            </template>
+          </a-trigger>
+        </div>
       </template>
-      <template #userRole="{ record }">
-        <a-tag :bordered="true" :color="record.userRole === 'admin' ? 'blue' : record.userRole === 'ban' ? 'red' : ''">
-          {{ record.userRole }}
-        </a-tag>
+      <template #tags="{ record }">
+        <a-tag :color="getRandomColor()" v-for="(item, index) in JSON.parse(record.tags)" :key="index" bordered>{{
+          item }}</a-tag>
       </template>
       <template #options="{ record }">
         <!-- 新增操作按钮 -->
@@ -66,16 +74,18 @@
               更多操作
             </a-button>
             <template #content>
-              <a-doption><a-button type="primary" shape="round" @click="updateUserRole(record.id,'ban')">禁用</a-button></a-doption>
-              <a-doption><a-button type="primary" shape="round" @click="updateUserRole(record.id,'user')">启用</a-button></a-doption>
+              <a-doption><a-button type="primary" shape="round"
+                  @click="updateUserRole(record.id, 'ban')">下架</a-button></a-doption>
+              <a-doption><a-button type="primary" shape="round"
+                  @click="updateUserRole(record.id, 'user')">上架</a-button></a-doption>
             </template>
           </a-dropdown>
         </div>
       </template>
     </a-table>
 
-    <a-pagination style="justify-content: center; margin-top: 10px;" v-model:page-size="pageSize" :default-page-size="5"
-      :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
+    <a-pagination style="justify-content: center; margin-top: 10px;" v-model:page-size="pageSize"
+    :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
 
     <a-drawer :width="440" v-if="userInfo" ok-text="保存" :hide-cancel=true :visible="visible" @cancel="handleCancel"
       unmountOnClose>
@@ -137,7 +147,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue';
 import { IconDownload, IconEdit, IconDoubleDown, IconDelete } from '@arco-design/web-vue/es/icon';
-import { UserControllerService } from '@/generated';
+import { QuestionControllerService, UserControllerService } from '@/generated';
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
 const rowSelection = reactive({
@@ -164,38 +174,41 @@ const columns = ref([
     width: 120,
   },
   {
-    title: '账号',
-    dataIndex: 'userAccount',
-    key: 'userAccount',
+    title: '标题',
+    dataIndex: 'title',
+    key: 'title',
+    slotName: 'title',
     width: 120,
     minWidth: 120,
   },
   {
-    title: '头像',
-    dataIndex: 'userAvatar',
-    key: 'userAvatar',
-    slotName: 'userAvatar',
-    width: 60,
-  },
-  {
-    title: '昵称',
-    dataIndex: 'userName',
-    key: 'userName',
+    title: '标签列表',
+    dataIndex: 'tags',
+    key: 'tags',
+    slotName: 'tags',
     width: 120,
     minWidth: 120,
   },
   {
-    title: '邮箱',
-    dataIndex: 'email',
-    key: 'email',
-    width: 190,
-    minWidth: 190,
+    title: '题目提交数',
+    dataIndex: 'submitNum',
+    key: 'submitNum',
+    width: 100,
+    minWidth: 100,
   },
   {
-    title: '角色',
-    dataIndex: 'userRole',
-    key: 'userRole',
-    slotName: 'userRole',
+    title: '题目通过数',
+    dataIndex: 'acceptedNum',
+    key: 'acceptedNum',
+    slotName: 'acceptedNum',
+    width: 70,
+    minWidth: 70,
+  },
+  {
+    title: '创建用户 id',
+    dataIndex: 'userId',
+    key: 'userId',
+    slotName: 'userId',
     width: 70,
     minWidth: 70,
   },
@@ -205,21 +218,38 @@ const columns = ref([
 
   },
 ]);
+// 封装 Question 类型
+interface QuestionListVo {
+  id: string;
+  name: string;
+  tags: string[];
+  completionRate: number;
+  submitNum: number;
+}
+const data = ref<QuestionListVo[] | undefined>(undefined);
 const dataSource = ref([]);
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
 const exportFile = () => {
-    axios.post('/api/user/export', null, {
-        responseType: 'blob'
-    }).then((response) => {
-        const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '用户.xls';
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }).catch(() => {
-        Message.error("导出失败"+error)
-    });
+  axios.post('/api/user/export', null, {
+    responseType: 'blob'
+  }).then((response) => {
+    const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '用户.xls';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }).catch(() => {
+    Message.error("导出失败" + error)
+  });
 };
 
 // 用户信息
@@ -236,8 +266,8 @@ const edit = (item) => {
     }
   })
 }
-const updateUserRole = (item,role)=>{
-  UserControllerService.putUserRoleUsingPut(item,role).then((res) => {
+const updateUserRole = (item, role) => {
+  UserControllerService.putUserRoleUsingPut(item, role).then((res) => {
     if (res.code == 200) {
       Message.success("修改成功！")
       userList()
@@ -253,7 +283,7 @@ const del = (item) => {
     }
   })
 }
-const delArr = ()=>{
+const delArr = () => {
   UserControllerService.deleteUsersUsingDelete(selectedKeys.value).then((res) => {
     if (res.code == 200) {
       Message.success("删除成功！")
@@ -263,11 +293,9 @@ const delArr = ()=>{
   })
 }
 const change = (e) => {
-  UserControllerService.getUserListUsingGet("", 1, e, pageSize.value, 0, "").then((res) => {
-    if (res.code == 200) {
-      dataSource.value = res.data?.records
-      pagination.total = res.data?.total ?? 0
-    }
+  QuestionControllerService.questionsUsingGet(0, e, pageSize.value).then((res) => {
+    dataSource.value = res.data!.records
+    pagination.total= res.data!.total
   })
 }
 const handleCancel = () => {
@@ -278,13 +306,13 @@ const reset = () => {
   options.value = ""
 }
 const userList = () => {
-
-  UserControllerService.getUserListUsingGet("", 0, 1, pageSize.value, 0, "").then((res) => {
+  QuestionControllerService.questionsUsingGet(0, 1, pageSize.value).then((res) => {
     if (res.code == 200) {
       dataSource.value = res.data?.records
       pagination.total = res.data?.total ?? 0
     }
   })
+
 }
 const search = () => {
   if (searchData.value !== "") {
@@ -326,14 +354,24 @@ userList()
 <style scoped>
 .demo-basic {
   padding: 10px;
-  width: 200px;
+  display: block;
+  height: auto;
   background-color: var(--color-bg-popup);
   border-radius: 4px;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  white-space: normal;
+  width: 200px;
+  overflow-wrap: break-word;
+  /* 使用 break-word 确保长单词换行 */
+  word-break: break-all;
+  /* 强制文本在边界处断开 */
+  overflow: visible;
+  /* 确保内容可见 */
 }
 
 .ellipsis {
   width: 100%;
+  max-width: 200px;
   height: 30px;
   overflow: hidden;
   white-space: nowrap;

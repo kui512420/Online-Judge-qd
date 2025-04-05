@@ -95,120 +95,71 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import * as monaco from 'monaco-editor';
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
 import { QuestionControllerService } from '@/generated';
-const route = useRoute()
-const size = ref(0.35)
-const info = ref()
-const loading = ref(false)
+import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
+import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
 
-// 获取数据
-const fetchData = async () => {
-  loading.value = true
-  try {
-    const res = await QuestionControllerService.questionInfoUsingGet(Number(route.params.id))
-    info.value = res.data
-  } catch (error) {
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
-}
-// 定义选中的语言
+const route = useRoute();
+const size = ref(0.35);
+const info = ref();
 const selectedLanguage = ref('java');
-// 定义编辑器实例
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
-onMounted(() => {
+// 代码模板
+const codeTemplates = {
+  java: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, Java!");
+    }
+}`,
+  python: `print("Hello, Python!")`,
+  javascript: `console.log("Hello, JavaScript!");`
+};
 
-  fetchData()
+// 获取题目数据
+const fetchData = async () => {
+  try {
+    const res = await QuestionControllerService.questionInfoUsingGet(BigInt(route.params.id));
+    info.value = res.data;
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+};
+
+// 初始化编辑器
+const initEditor = () => {
   const container = document.getElementById('container');
   if (!container) return;
 
-  // 配置Java语言支持（需额外加载Java语法定义）
-  monaco.languages.register({ id: 'java' });
-  monaco.languages.setMonarchTokensProvider('java', {
-    // 基础语法高亮定义（简化版）
-    tokenizer: {
-      root: [
-        [/public\s+/, 'keyword'],
-        [/class\s+/, 'keyword'],
-        [/[A-Z][a-zA-Z0-9]*/, 'type'],
-        [/System\.out\.println/, 'method'],
-        [/"[^"]*"/, 'string']
-      ]
-    }
-  });
-
-  // 创建编辑器实例
   editor = monaco.editor.create(container, {
-    value: `public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello, Java!"); // 这是Java代码
-        // 以下是Java语法演示：
-        int x = 10;
-        String message = "Monaco Editor";
-        System.out.println(message + ", version: " + x);
-    }
-}`,
+    value: codeTemplates[selectedLanguage.value as keyof typeof codeTemplates],
     language: selectedLanguage.value,
-    theme: 'vs-dark', // 深色主题
-    automaticLayout: true, // 自动适应容器大小
-    lineNumbers: 'on', // 显示行号
-    wordWrap: 'on', // 自动换行
+    theme: 'vs-dark',
+    automaticLayout: true,
+    lineNumbers: 'on',
+    wordWrap: 'on',
     fontSize: 14,
-    scrollBeyondLastLine: false // 禁止滚动到最后一行外
+    scrollBeyondLastLine: false
   });
+};
 
-  // 可选：添加Java特有的代码提示（需更完整的语言服务）
-  editor.addAction({
-    id: 'java-snippet',
-    label: 'Insert Java main method',
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_M],
-    run: () => {
-      editor?.insertSnippet(`public static void main(String[] args) {\n\t$0\n}`);
-    }
-  });
+// 切换语言
+const changeLanguage = () => {
+  if (!editor) return;
+  editor.setValue(codeTemplates[selectedLanguage.value as keyof typeof codeTemplates]);
+  editor.getModel()?.updateOptions({ language: selectedLanguage.value });
+};
+
+// 生命周期钩子
+onMounted(() => {
+  fetchData();
+  initEditor();
 });
 
-// 切换语言的函数
-const changeLanguage = () => {
-  if (editor) {
-    let codeValue = '';
-    switch (selectedLanguage.value) {
-      case 'java':
-        codeValue = `public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello, Java!");
-        int x = 10;
-        String message = "Monaco Editor";
-        System.out.println(message + ", version: " + x);
-    }
-}`;
-        break;
-      case 'python':
-        codeValue = `print("Hello, Python!")
-x = 10
-message = "Monaco Editor"
-print(f"{message}, version: {x}")`;
-        break;
-      case 'javascript':
-        codeValue = `function hello() {
-    console.log("Hello, JavaScript!");
-    let x = 10;
-    let message = "Monaco Editor";
-    console.log(message + ", version: " + x);
-}`;
-        break;
-    }
-    editor.setValue(codeValue);
-    editor.getModel()?.updateOptions({ language: selectedLanguage.value });
-  }
-};
-watch(() => selectedLanguage, () => {
-  changeLanguage()
-}, { deep: true })
-
+// 监听语言变化
+watch(selectedLanguage, changeLanguage);
 </script>
 
 <style scoped>

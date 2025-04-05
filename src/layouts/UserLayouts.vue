@@ -29,7 +29,7 @@
 
 <script setup lang='ts'>
 import UserLoginView from '@/views/user/UserLoginView.vue'
-import UseRegisterView from '@/views/user/UseRegisterView.vue'
+import UseRegisterView from '@/views/user/UserRegisterView.vue'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
 import { useRoute } from 'vue-router';
 import router from '@/router/index';

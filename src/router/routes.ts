@@ -21,7 +21,7 @@ const routes:Array<RouteRecordRaw> =  [
       {
         path:"register",
         name:"注册",
-        component: ()=>import("@/views/user/UseRegisterView.vue")
+        component: ()=>import("@/views/user/UserRegisterView.vue")
       }
     ]
   },
@@ -69,7 +69,15 @@ const routes:Array<RouteRecordRaw> =  [
         name:"managementRed"
       },
       {path:"index",name:"managementIndex",component:()=>import("@/views/management/IndexView.vue")},
-      {path:"user",name:"managementUser",component:()=>import("@/views/management/UserView.vue")}
+      {path:"user",name:"managementUser",component:()=>import("@/views/management/UserView.vue")},
+      {
+        path:"question",name:"managementQuestion",component:()=>import("@/views/management/QuestionView.vue"),
+      },
+      {
+        path:"question/put",
+        name:"managementQuestionPut",
+        component:()=>import("@/views/management/question/QuestionEditView.vue")
+      }
     ]
   },
   {

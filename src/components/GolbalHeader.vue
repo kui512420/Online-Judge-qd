@@ -15,10 +15,12 @@
 
       </a-menu>
     </a-col>
-    <ThemeSwitch></ThemeSwitch>
+    <div style="background-color: #fff; display: flex; height: 100%; align-items: center; justify-content: center;">
+      <ThemeSwitch></ThemeSwitch>
     <a-col flex="80px">
       <MyHeader style="margin-left: 10px;"></MyHeader>
     </a-col>
+    </div>
   </a-row>
 
 </template>
