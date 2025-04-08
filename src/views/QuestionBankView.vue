@@ -7,26 +7,25 @@
           <div style="  padding: 10px;">排序</div>
           <div :class="{ 'filter-hover': true, 'filter-selected': isFilter1Selected }" class="filter-hover"
             @click="selectFilter(1)">
-            <icon-arrow-rise />通过率最高
+            <icon-arrow-rise />挑战人数
           </div>
           <div :class="{ 'filter-hover': true, 'filter-selected': isFilter2Selected }" class="filter-hover"
             @click="selectFilter(2)">
-            <icon-arrow-fall />通过率最低
+            <icon-arrow-fall />挑战人数
+          </div>
+          <div class="filter-reset-hover" @click="reset">
+            重置
           </div>
         </div>
       </a-card>
-      <a-table :data="data" :pagination="false"  row-key="id" >
+      <a-table :data="data" :pagination="false" row-key="id">
         <template #columns>
           <a-table-column title="题目ID" data-index="id" key="id"></a-table-column>
-          <a-table-column
-      title="题目"
-      data-index="title"
-      :width="100"
-    >
-      <template #cell="{ record }">
-        <div class="ellipsis-text">{{ record.title }}</div>
-      </template>
-    </a-table-column>
+          <a-table-column title="题目" data-index="title" :width="100">
+            <template #cell="{ record }">
+              <div class="ellipsis-text">{{ record.title }}</div>
+            </template>
+          </a-table-column>
           <a-table-column title="标签" data-index="tags">
             <template #cell="{ record }">
               <a-tag :color="getRandomColor()" v-for="(item, index) in JSON.parse(record.tags)" :key="index" bordered>{{
@@ -39,7 +38,7 @@
             </template>
           </a-table-column>
           <a-table-column title="挑战人数" data-index="submitNum"></a-table-column>
-          <a-table-column title="操作" >
+          <a-table-column title="操作">
             <template #cell="{ record }">
               <a-button @click="handleDo(record.id)">开始挑战</a-button>
             </template>
@@ -47,7 +46,7 @@
         </template>
       </a-table>
       <a-pagination style="justify-content: center; margin-top: 10px;" v-model:page-size="pageSize"
-      :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
+        :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
     </div>
     <div class="content-right">
       <div class="card-list">
@@ -82,12 +81,12 @@
 
   </div>
 </template>
-
 <script setup lang="ts">
 import router from '@/router';
 import { reactive, ref, watch } from 'vue';
 import { QuestionControllerService } from '@/generated';
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon'
+
 // 封装 Question 类型
 interface QuestionListVo {
   id: string;
@@ -96,6 +95,7 @@ interface QuestionListVo {
   completionRate: number;
   submitNum: number;
 }
+
 const pagination = reactive({
   total: 0
 })
@@ -132,12 +132,22 @@ const tags = ref([
   "蚁群算法",
   "模拟退火算法"
 ]);
+
+// 封装请求函数
+const fetchQuestions = (type: number, sort: number | undefined, page: number, size: number, id: number | undefined, filter: number | undefined, tags: string | undefined, search: string | undefined) => {
+  return QuestionControllerService.questionsUsingGet(type, sort, page, size, id, filter, tags, search).then((res) => {
+    data.value = res.data!.records
+    total.value = res.data!.total
+    pagination.total = res.data!.total
+  })
+}
+
 watch(pageSize, () => {
   getList()
 })
-// 处理标签点击事件的函数
-const handleTagClick = (tag) => {
 
+// 处理标签点击事件的函数
+const handleTagClick = (tag: string) => {
   const index = selectedTags.value.indexOf(tag);
   if (index > -1) {
     // 如果标签已选中，将其从选中列表中移除
@@ -147,21 +157,20 @@ const handleTagClick = (tag) => {
     selectedTags.value.push(tag);
   }
 
-  QuestionControllerService.questionsUsingGet(3, 1, 10,0,"",JSON.stringify(selectedTags.value)).then((res) => {
-    data.value = res.data!.records
-    total.value = res.data!.total
-  })
-  if(selectedTags.value.length<=0){
+
+  if (selectedTags.value.length <= 0) {
     getList()
+  } else {
+    const filter = isFilter1Selected.value ? 1 : 0;
+    fetchQuestions(4, 1, 1, 10, undefined, filter, JSON.stringify(selectedTags.value), undefined);
+
   }
 };
 
-const change = (e) => {
-  QuestionControllerService.questionsUsingGet(0, e, pageSize.value).then((res) => {
-    data.value = res.data!.records
-    pagination.total= res.data!.total
-  })
+const change = (page: number) => {
+  fetchQuestions(0, undefined, page, pageSize.value, undefined, undefined, undefined, undefined);
 }
+
 const selectFilter = (filterIndex: number) => {
   // 重置所有的选中状态
   isFilter1Selected.value = false;
@@ -173,14 +182,24 @@ const selectFilter = (filterIndex: number) => {
   } else if (filterIndex === 2) {
     isFilter2Selected.value = true;
   }
+
+  const filter = filterIndex === 1 ? 1 : 0;
+  fetchQuestions(4, 1, 1, 5, undefined, filter, JSON.stringify(selectedTags.value), undefined);
 };
+
 const getList = () => {
-  QuestionControllerService.questionsUsingGet(0, 1, pageSize.value).then((res) => {
-    data.value = res.data!.records
-    pagination.total  = res.data!.total
-  })
+  fetchQuestions(0, 1, 1, pageSize.value, undefined, undefined, undefined, undefined);
 }
+
+const reset = () => {
+  selectedTags.value = [];
+  isFilter1Selected.value = false;
+  isFilter2Selected.value = false;
+  getList();
+}
+
 getList()
+
 // 模拟编辑操作
 const handleDo = (id: number) => {
   router.push("/questionView/" + id)
@@ -194,20 +213,14 @@ const getRandomColor = () => {
   }
   return color;
 };
+
 watch(searchData, () => {
-  if(searchData.value==""){
-    getList()
-  }
-  if (Number.isNaN(Number(searchData.value))) {
-    QuestionControllerService.questionsUsingGet(2, 1, 10,0,searchData.value).then((res) => {
-      data.value = res.data!.records
-      total.value = res.data!.total
-    })
+  if (searchData.value === "") {
+    getList();
+  } else if (Number.isNaN(Number(searchData.value))) {
+    fetchQuestions(2, undefined, 1, 10, undefined, 0, undefined, searchData.value);
   } else {
-    QuestionControllerService.questionsUsingGet(1, 1, 10,Number(searchData.value)).then((res) => {
-      data.value = res.data!.records
-      total.value = res.data!.total
-    })
+    fetchQuestions(1, undefined, 1, 10, Number(searchData.value), undefined, undefined, undefined);
   }
 })
 </script>
@@ -243,6 +256,12 @@ watch(searchData, () => {
   background: rgba(34, 191, 167, .1);
 }
 
+.filter-reset-hover {
+  padding: 10px;
+  cursor: pointer;
+}
+
+
 .filter-hover:hover {
   color: #22bfa7;
   background: rgba(34, 191, 167, .1);
@@ -263,12 +282,18 @@ watch(searchData, () => {
   width: 100%;
   justify-content: space-around;
 }
+
 .ellipsis-text {
-  white-space: nowrap;       /* 禁止换行 */
-  overflow: hidden;          /* 隐藏溢出内容 */
-  text-overflow: ellipsis;   /* 显示省略号 */
-  max-width: 100px;          /* 与列宽一致 */
+  white-space: nowrap;
+  /* 禁止换行 */
+  overflow: hidden;
+  /* 隐藏溢出内容 */
+  text-overflow: ellipsis;
+  /* 显示省略号 */
+  max-width: 100px;
+  /* 与列宽一致 */
 }
+
 @media(max-width: 768px) {
   .wapper {
     display: flex;

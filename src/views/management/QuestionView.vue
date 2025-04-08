@@ -18,7 +18,9 @@
       <a-button type="primary" status="danger" @click="delArr">
         批量删除
       </a-button>
-
+      <a-button type="dashed" status="success" @click="AIvisible=!AIvisible">
+        AI一键生成
+      </a-button>
       <a-button type="dashed" @click="reset">
         重置
       </a-button>
@@ -139,7 +141,14 @@
       </div>
     </a-drawer>
 
-
+    <a-modal v-model:visible="AIvisible" @ok="handleOk" @cancel="handleCancel">
+    <template #title>
+      AI赋能OJ
+    </template>
+    <div>
+      出题数量： <a-input-number v-model="value" :style="{width:'320px'}"  class="input-demo" :min="10" :max="100"/>
+    </div>
+  </a-modal>
   </div>
 
 </template>
@@ -158,6 +167,7 @@ const rowSelection = reactive({
 const pagination = reactive({
   total: 0
 })
+const AIvisible = ref(false)
 const pageSize = ref(5)
 const pageSizes = ref([5, 10, 20, 30, 50])
 
@@ -293,7 +303,7 @@ const delArr = () => {
   })
 }
 const change = (e) => {
-  QuestionControllerService.questionsUsingGet(0, e, pageSize.value).then((res) => {
+  QuestionControllerService.questionsUsingGet(0,undefined, e, pageSize.value).then((res) => {
     dataSource.value = res.data!.records
     pagination.total= res.data!.total
   })
@@ -306,7 +316,7 @@ const reset = () => {
   options.value = ""
 }
 const userList = () => {
-  QuestionControllerService.questionsUsingGet(0, 1, pageSize.value).then((res) => {
+  QuestionControllerService.questionsUsingGet(0,undefined, 1, pageSize.value).then((res) => {
     if (res.code == 200) {
       dataSource.value = res.data?.records
       pagination.total = res.data?.total ?? 0

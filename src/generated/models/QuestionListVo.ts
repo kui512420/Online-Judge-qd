@@ -5,7 +5,7 @@
 export type QuestionListVo = {
     acceptedNum?: number;
     createTime?: string;
-    id?: number;
+    id?: string;
     submitNum?: number;
     tags?: string;
     title?: string;
