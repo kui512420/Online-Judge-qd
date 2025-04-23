@@ -12,12 +12,9 @@
       </a-card>
     </div>
     <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-      <a-card style=" width: 360px" title="用户增长统计">
-        <EchartsSmooth></EchartsSmooth>
-      </a-card>
 
-      <a-card style=" width: 360px" title="日常登录用户统计">
-        <EchartsSmooth></EchartsSmooth>
+      <a-card style=" width: 360px" title="刷题数据统计">
+        <EchartsPie></EchartsPie>
       </a-card>
     </div>
 
@@ -25,7 +22,7 @@
 </template>
 
 <script setup lang='ts'>
-import EchartsSmooth from '@/components/echarts/EchartsSmooth.vue';
+import EchartsPie from '@/components/echarts/EchartsPie.vue'
 </script>
 <style scoped>
 .top {

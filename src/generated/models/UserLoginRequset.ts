@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserLoginRequset = {
-    code?: string;
-    password?: string;
     user?: string;
+    password?: string;
+    code?: string;
 };
 

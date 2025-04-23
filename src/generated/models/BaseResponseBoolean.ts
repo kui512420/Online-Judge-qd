@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type BaseResponse_Map_string_string_ = {
+export type BaseResponseBoolean = {
     code?: number;
-    data?: Record<string, string>;
     message?: string;
+    data?: boolean;
 };
 

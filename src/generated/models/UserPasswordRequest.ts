@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserPasswordRequest = {
-    code?: string;
-    email?: string;
-    newUserPassword?: string;
     usrePassword?: string;
+    newUserPassword?: string;
+    email?: string;
+    code?: string;
 };
 

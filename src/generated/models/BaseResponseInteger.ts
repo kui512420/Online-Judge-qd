@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type BaseResponse_Map_object_object_ = {
+export type BaseResponseInteger = {
     code?: number;
-    data?: Record<string, any>;
     message?: string;
+    data?: number;
 };
 

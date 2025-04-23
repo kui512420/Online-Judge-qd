@@ -3,13 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type QuestionListVo = {
-    acceptedNum?: number;
-    createTime?: string;
-    id?: string;
-    submitNum?: number;
-    tags?: string;
+    id?: number;
     title?: string;
-    updateTime?: string;
+    tags?: string;
+    submitNum?: number;
+    acceptedNum?: number;
     userId?: number;
+    createTime?: string;
+    updateTime?: string;
 };
 

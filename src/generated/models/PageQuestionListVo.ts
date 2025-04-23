@@ -4,16 +4,17 @@
 /* eslint-disable */
 import type { OrderItem } from './OrderItem';
 import type { QuestionListVo } from './QuestionListVo';
-export type Page_QuestionListVo_ = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: Array<OrderItem>;
-    pages?: number;
+export type PageQuestionListVo = {
     records?: Array<QuestionListVo>;
-    searchCount?: boolean;
-    size?: number;
     total?: number;
+    size?: number;
+    current?: number;
+    orders?: Array<OrderItem>;
+    optimizeCountSql?: PageQuestionListVo;
+    searchCount?: PageQuestionListVo;
+    optimizeJoinOfCountSql?: boolean;
+    maxLimit?: number;
+    countId?: string;
+    pages?: number;
 };
 

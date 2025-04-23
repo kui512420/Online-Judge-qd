@@ -34,7 +34,7 @@ const form = reactive({
 const loginLoding = ref(false)
 const handleSubmit = () => {
   loginLoding.value = true
-  UserControllerService.registerUsingPost({"user":form.name,"password":form.password,code:form.code}).then((res)=>{
+  UserControllerService.login({"user":form.name,"password":form.password,code:form.code}).then((res)=>{
     if(res.code===200){
       Notification.success({
         title: '登录成功',

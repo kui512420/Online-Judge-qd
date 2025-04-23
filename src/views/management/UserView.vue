@@ -14,17 +14,20 @@
         </template>
         导出
       </a-button>
+      <a-popconfirm @ok="delArr" content="确定删除?">
+        <a-button type="primary" status="danger">
+          批量删除
+        </a-button>
+      </a-popconfirm>
 
-      <a-button type="primary" status="danger" @click="delArr">
-        批量删除
-      </a-button>
+
 
       <a-button type="dashed" @click="reset">
         重置
       </a-button>
     </div>
-    <a-table :columns="columns" row-key="id" :data="dataSource" column-resizable :bordered="{ cell: true }" :pagination="false"
-      :row-selection="rowSelection" v-model:selectedKeys="selectedKeys" >
+    <a-table :columns="columns" row-key="id" :data="dataSource" column-resizable :bordered="{ cell: true }"
+      :pagination="false" :row-selection="rowSelection" v-model:selectedKeys="selectedKeys">
       <template #id="{ record }">
         <a-trigger class="ellipsis" position="top" auto-fit-position :unmount-on-close="false">
           <div>{{ record.id }}</div>
@@ -52,12 +55,15 @@
             </template>
             编辑
           </a-button>
-          <a-button size="small" @click="del(record)" type="outline" status="danger" style="margin: 0 5px;">
-            <template #icon>
-              <icon-delete />
-            </template>
-            删除
-          </a-button>
+
+          <a-popconfirm @ok="del(record)" content="确定删除?">
+            <a-button size="small" type="outline" status="danger" style="margin: 0 5px;">
+              <template #icon>
+                <icon-delete />
+              </template>
+              删除
+            </a-button>
+          </a-popconfirm>
           <a-dropdown position="bottom">
             <a-button type="dashed" size="small">
               <template #icon>
@@ -66,8 +72,10 @@
               更多操作
             </a-button>
             <template #content>
-              <a-doption><a-button type="primary" shape="round" @click="updateUserRole(record.id,'ban')">禁用</a-button></a-doption>
-              <a-doption><a-button type="primary" shape="round" @click="updateUserRole(record.id,'user')">启用</a-button></a-doption>
+              <a-doption><a-button type="primary" shape="round"
+                  @click="updateUserRole(record.id, 'ban')">禁用</a-button></a-doption>
+              <a-doption><a-button type="primary" shape="round"
+                  @click="updateUserRole(record.id, 'user')">启用</a-button></a-doption>
             </template>
           </a-dropdown>
         </div>
@@ -207,19 +215,19 @@ const columns = ref([
 ]);
 const dataSource = ref([]);
 const exportFile = () => {
-    axios.post('/api/user/export', null, {
-        responseType: 'blob'
-    }).then((response) => {
-        const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '用户.xls';
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }).catch(() => {
-        Message.error("导出失败"+error)
-    });
+  axios.post('/api/user/export', null, {
+    responseType: 'blob'
+  }).then((response) => {
+    const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '用户.xls';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }).catch(() => {
+    Message.error("导出失败" + error)
+  });
 };
 
 // 用户信息
@@ -230,14 +238,20 @@ watch(pageSize, () => {
 const edit = (item) => {
 
   visible.value = true
-  UserControllerService.getUserListUsingGet("", item.id, 1, 10, 1, "").then((res) => {
+
+  UserControllerService.getUserList({
+    page: 1,
+    size: 5,
+    id: item.id,
+    type: 1
+  }).then((res) => {
     if (res.code == 200) {
       userInfo.value = res.data.records[0]
     }
   })
 }
-const updateUserRole = (item,role)=>{
-  UserControllerService.putUserRoleUsingPut(item,role).then((res) => {
+const updateUserRole = (item, role) => {
+  UserControllerService.putUserRole(item, role).then((res) => {
     if (res.code == 200) {
       Message.success("修改成功！")
       userList()
@@ -246,15 +260,15 @@ const updateUserRole = (item,role)=>{
 
 }
 const del = (item) => {
-  UserControllerService.deleteUserUsingDelete(item.id).then((res) => {
+  UserControllerService.deleteUser(item.id).then((res) => {
     if (res.code == 200) {
       Message.success("删除成功！")
       userList()
     }
   })
 }
-const delArr = ()=>{
-  UserControllerService.deleteUsersUsingDelete(selectedKeys.value).then((res) => {
+const delArr = () => {
+  UserControllerService.deleteUsers(selectedKeys.value).then((res) => {
     if (res.code == 200) {
       Message.success("删除成功！")
       selectedKeys.value = []
@@ -263,7 +277,11 @@ const delArr = ()=>{
   })
 }
 const change = (e) => {
-  UserControllerService.getUserListUsingGet("", 1, e, pageSize.value, 0, "").then((res) => {
+  UserControllerService.getUserList({
+    page: 1,
+    size: pageSize.value,
+    type: 0
+  }).then((res) => {
     if (res.code == 200) {
       dataSource.value = res.data?.records
       pagination.total = res.data?.total ?? 0
@@ -276,10 +294,18 @@ const handleCancel = () => {
 const reset = () => {
   userList()
   options.value = ""
+  searchData.value = ""
 }
 const userList = () => {
-
-  UserControllerService.getUserListUsingGet("", 0, 1, pageSize.value, 0, "").then((res) => {
+  const userListRequest = {
+    page: 1,
+    size: pageSize.value,
+    type: 0,
+    id: 0,
+    userAccount: "",
+    email: ""
+  };
+  UserControllerService.getUserList(userListRequest).then((res) => {
     if (res.code == 200) {
       dataSource.value = res.data?.records
       pagination.total = res.data?.total ?? 0
@@ -289,7 +315,15 @@ const userList = () => {
 const search = () => {
   if (searchData.value !== "") {
     if (options.value == "ID") {
-      UserControllerService.getUserListUsingGet("", searchData.value, 1, 10, 1, "").then((res) => {
+      const userListRequest = {
+        page: 1,
+        size: pageSize.value,
+        type: 1,
+        id: searchData.value,
+        userAccount: "",
+        email: ""
+      };
+      UserControllerService.getUserList(userListRequest).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -298,7 +332,14 @@ const search = () => {
         Message.warning("参数异常")
       })
     } else if (options.value == "账号") {
-      UserControllerService.getUserListUsingGet("", 1, 1, 10, 2, searchData.value).then((res) => {
+      const userListRequest = {
+        page: 1,
+        size: pageSize.value,
+        type: 2,
+        userAccount: searchData.value,
+        email: ""
+      };
+      UserControllerService.getUserList(userListRequest).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -307,7 +348,13 @@ const search = () => {
         Message.warning("参数异常")
       })
     } else if (options.value == "邮箱") {
-      UserControllerService.getUserListUsingGet(searchData.value, 1, 1, 10, 3, "").then((res) => {
+      const userListRequest = {
+        page: 1,
+        size: pageSize.value,
+        type: 3,
+        email: searchData.value
+      };
+      UserControllerService.getUserList(userListRequest).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -316,7 +363,7 @@ const search = () => {
         Message.warning("参数异常")
       })
     } else {
-
+      Message.warning("参数异常")
     }
   }
 

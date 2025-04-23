@@ -138,7 +138,6 @@ const scrollHeight = ref(0);
 const isAn = ref(false)
 const handleScroll = () => {
   scrollHeight.value = window.scrollY;
-  console.log(scrollHeight.value)
   if (scrollHeight.value > 420) {
     isAn.value = true
   }

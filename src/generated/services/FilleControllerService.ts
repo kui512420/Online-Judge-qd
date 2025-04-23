@@ -7,15 +7,16 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class FilleControllerService {
     /**
-     * uploadFile
-     * @param accesstoken Accesstoken
+     * @param accesstoken
      * @param requestBody
      * @returns any OK
      * @throws ApiError
      */
-    public static uploadFileUsingPost(
+    public static uploadFile(
         accesstoken?: string,
-        requestBody?: Blob,
+        requestBody?: {
+            file: Blob;
+        },
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
@@ -25,20 +26,14 @@ export class FilleControllerService {
             },
             body: requestBody,
             mediaType: 'application/json',
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
         });
     }
     /**
-     * getImage
-     * @param filename filename
+     * @param filename
      * @returns string OK
      * @throws ApiError
      */
-    public static getImageUsingGet(
+    public static getImage(
         filename: string,
     ): CancelablePromise<string> {
         return __request(OpenAPI, {
@@ -46,11 +41,6 @@ export class FilleControllerService {
             url: '/api/file/userheader/{filename}',
             path: {
                 'filename': filename,
-            },
-            errors: {
-                401: `Unauthorized`,
-                403: `Forbidden`,
-                404: `Not Found`,
             },
         });
     }

@@ -18,4 +18,3 @@ const useStore = useUserStore()
 </script>
 <style scoped>
 </style>
-

@@ -3,11 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export type QuestionPostRequest = {
-    content?: string;
-    judgeCase?: string;
-    judgeConfig?: string;
-    tags?: string;
+    id?: number;
     title?: string;
+    content?: string;
+    tags?: string;
     userId?: number;
+    judgeConfig?: string;
+    judgeCase?: string;
 };
 

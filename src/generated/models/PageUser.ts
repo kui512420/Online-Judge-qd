@@ -4,16 +4,17 @@
 /* eslint-disable */
 import type { OrderItem } from './OrderItem';
 import type { User } from './User';
-export type Page_User_ = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: Array<OrderItem>;
-    pages?: number;
+export type PageUser = {
     records?: Array<User>;
-    searchCount?: boolean;
-    size?: number;
     total?: number;
+    size?: number;
+    current?: number;
+    orders?: Array<OrderItem>;
+    optimizeCountSql?: PageUser;
+    searchCount?: PageUser;
+    optimizeJoinOfCountSql?: boolean;
+    maxLimit?: number;
+    countId?: string;
+    pages?: number;
 };
 

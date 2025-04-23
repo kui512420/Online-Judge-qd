@@ -96,10 +96,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { QuestionControllerService } from '@/generated';
-
+import { useRoute } from 'vue-router';
 
 interface TestCase {
   input: string;
@@ -107,6 +107,7 @@ interface TestCase {
 }
 
 interface FormData {
+  id:bigint,
   title: string;
   tagsArray: string[]; // 用于前端展示和编辑
   content: string;
@@ -115,15 +116,63 @@ interface FormData {
   testCases: TestCase[];
 }
 
-const loading = ref(false);
-
+const route = useRoute();
+const questionId = ref(route.params.id);
 const formData = ref<FormData>({
+  id:0,
   title: '',
   tagsArray: [],
   content: '',
-  timeLimit: 500,
+  timeLimit: 1000,
   memoryLimit: 256,
   testCases: []
+});
+
+const loading = ref(false);
+
+// 处理获取到的题目数据
+const processQuestionData = (data: any) => {
+  try {
+    const judgeConfig = JSON.parse(data.judgeConfig || '{}');
+    const judgeCase = JSON.parse(data.judgeCase || '[]');
+
+    formData.value = {
+      id:data.id || 0,
+      title: data.title || '',
+      tagsArray: JSON.parse(data.tags || '[]'),
+      content: data.content || '',
+      timeLimit: judgeConfig.timeLimit || 1000,
+      memoryLimit: judgeConfig.memoryLimit || 256,
+      testCases: judgeCase.map((item: any) => ({
+        input: item.input || '',
+        output: item.output || ''
+      }))
+    };
+
+    // 如果没有任何测试用例，添加一个空的
+    if (formData.value.testCases.length === 0) {
+      formData.value.testCases.push({
+        input: '',
+        output: ''
+      });
+    }
+  } catch (error) {
+    console.error('解析题目数据失败:', error);
+    Message.error('解析题目数据失败');
+  }
+};
+
+onMounted(() => {
+  QuestionControllerService.questionInfoDetail(questionId.value).then((res) => {
+    if (res.code === 200) {
+      processQuestionData(res.data);
+    } else {
+      Message.error('获取题目信息失败');
+    }
+  }).catch(error => {
+    console.error('获取题目信息失败:', error);
+    Message.error('获取题目信息失败');
+  });
 });
 
 const addTestCase = () => {
@@ -138,7 +187,6 @@ const removeTestCase = (index: number) => {
 };
 
 const handleSubmit = async () => {
-  console.log(formData.value.tagsArray)
   // 简单验证
   if (!formData.value.title) {
     Message.error('请输入题目标题');
@@ -168,6 +216,7 @@ const handleSubmit = async () => {
   try {
     // 构造请求参数
     const requestData = {
+      id: questionId.value,
       title: formData.value.title,
       tags: JSON.stringify(formData.value.tagsArray),
       content: formData.value.content,
@@ -176,17 +225,13 @@ const handleSubmit = async () => {
         timeLimit: formData.value.timeLimit,
         memoryLimit: formData.value.memoryLimit
       }),
-      // userId 可以从用户信息中获取或留空让后端处理
     };
 
-    // 调用API
-    const response = await QuestionControllerService.questionUsingPost("", requestData);
+    // 调用API - 这里假设是更新题目
+    const response = await QuestionControllerService.updateQuestion(requestData);
 
     Message.success('题目保存成功');
     console.log('保存成功，返回数据:', response);
-
-    // 可以在这里跳转到题目列表或其他页面
-    // router.push('/question/list');
   } catch (error: any) {
     Message.error(`保存失败: ${error.message || '未知错误'}`);
     console.error('保存题目失败:', error);
@@ -196,15 +241,14 @@ const handleSubmit = async () => {
 };
 
 const handleReset = () => {
-  formData.value = {
-    title: '',
-    tagsArray: ['test'],
-    content: '',
-    timeLimit: 500,
-    memoryLimit: 256,
-    testCases: []
-  };
-  Message.success('已重置表单');
+  // 重置为从服务器获取的原始数据
+
+  QuestionControllerService.questionInfoDetail(questionId.value).then((res) => {
+    if (res.code === 200) {
+      processQuestionData(res.data);
+      Message.success('已重置表单');
+    }
+  });
 };
 </script>
 

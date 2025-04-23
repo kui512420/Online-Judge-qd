@@ -41,7 +41,7 @@ const form = reactive({
 });
 const handleSubmit = () => {
   registerLoding.value = true
-  UserControllerService.registerUsingPost1({"userAccount":form.name,"userPassword":form.password,"userCheakPassword":form.password2,"email":form.email,"emailCode":form.code}).then((res)=>{
+  UserControllerService.register({"userAccount":form.name,"userPassword":form.password,"userCheakPassword":form.password2,"email":form.email,"emailCode":form.code}).then((res)=>{
     if(res.code===200){
       Notification.success(res.message)
       // 本地存储双token

@@ -19,7 +19,7 @@ export default defineConfig({
   //服务器配置
   server: {
     //配置端口
-    host: '127.0.0.1', //本机地址
+    host: '0.0.0.0', //本机地址
     port: 5210,  //通过5000端口号访问
     //配置反向代理
     proxy: {

@@ -2,9 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type BaseResponse_string_ = {
-    code?: number;
-    data?: string;
-    message?: string;
+export type SubmitRequest = {
+    userId?: number;
+    language?: string;
+    code?: string;
+    questionId?: number;
 };
 

@@ -3,10 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 export type QuestionViewVo = {
-    content?: string;
     id?: number;
-    judgeCase?: string;
-    judgeConfig?: string;
     title?: string;
+    content?: string;
+    judgeConfig?: string;
+    judgeCase?: string;
 };
 

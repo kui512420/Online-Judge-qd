@@ -2,10 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { QuestionViewVo } from './QuestionViewVo';
-export type BaseResponse_QuestionViewVo_ = {
+export type BaseResponseMapObjectObject = {
     code?: number;
-    data?: QuestionViewVo;
     message?: string;
+    data?: Record<string, Record<string, any>>;
 };
 

@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div style="width: 100%;">
+
     <div style="display: flex; align-items: center; margin-bottom: 10px;">
       <a-select v-model="options" :style="{ width: '120px' }" placeholder="查询条件">
         <a-option>ID</a-option>
-        <a-option>账号</a-option>
-        <a-option>邮箱</a-option>
+        <a-option>标题</a-option>
+        <a-option>标签列表</a-option>
       </a-select>
       <a-input-search v-model="searchData" @click="search" :style="{ width: '320px' }" placeholder="请输入数据"
         search-button />
@@ -15,12 +16,12 @@
         导出
       </a-button>
 
-      <a-button type="primary" status="danger" @click="delArr">
-        批量删除
-      </a-button>
-      <a-button type="dashed" status="success" @click="AIvisible=!AIvisible">
-        AI一键生成
-      </a-button>
+
+      <a-popconfirm @ok="delArr" content="确定删除?">
+        <a-button type="primary" status="danger" @click="delArr">
+          批量删除
+        </a-button>
+      </a-popconfirm>
       <a-button type="dashed" @click="reset">
         重置
       </a-button>
@@ -62,12 +63,15 @@
             </template>
             编辑
           </a-button>
-          <a-button size="small" @click="del(record)" type="outline" status="danger" style="margin: 0 5px;">
-            <template #icon>
-              <icon-delete />
-            </template>
-            删除
-          </a-button>
+          <a-popconfirm @ok="del(record)" content="确定删除?">
+            <a-button size="small" type="outline" status="danger" style="margin: 0 5px;">
+              <template #icon>
+                <icon-delete />
+              </template>
+              删除
+            </a-button>
+          </a-popconfirm>
+
           <a-dropdown position="bottom">
             <a-button type="dashed" size="small">
               <template #icon>
@@ -87,7 +91,7 @@
     </a-table>
 
     <a-pagination style="justify-content: center; margin-top: 10px;" v-model:page-size="pageSize"
-    :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
+      :page-size-options="pageSizes" @change="change" :total=pagination.total show-total show-jumper show-page-size />
 
     <a-drawer :width="440" v-if="userInfo" ok-text="保存" :hide-cancel=true :visible="visible" @cancel="handleCancel"
       unmountOnClose>
@@ -140,17 +144,7 @@
         </div>
       </div>
     </a-drawer>
-
-    <a-modal v-model:visible="AIvisible" @ok="handleOk" @cancel="handleCancel">
-    <template #title>
-      AI赋能OJ
-    </template>
-    <div>
-      出题数量： <a-input-number v-model="value" :style="{width:'320px'}"  class="input-demo" :min="10" :max="100"/>
-    </div>
-  </a-modal>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -159,6 +153,7 @@ import { IconDownload, IconEdit, IconDoubleDown, IconDelete } from '@arco-design
 import { QuestionControllerService, UserControllerService } from '@/generated';
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
+import router from '@/router';
 const rowSelection = reactive({
   type: 'checkbox',
   showCheckedAll: true,
@@ -167,7 +162,7 @@ const rowSelection = reactive({
 const pagination = reactive({
   total: 0
 })
-const AIvisible = ref(false)
+
 const pageSize = ref(5)
 const pageSizes = ref([5, 10, 20, 30, 50])
 
@@ -219,7 +214,7 @@ const columns = ref([
     dataIndex: 'userId',
     key: 'userId',
     slotName: 'userId',
-    width: 70,
+    width: 170,
     minWidth: 70,
   },
   {
@@ -235,6 +230,16 @@ interface QuestionListVo {
   tags: string[];
   completionRate: number;
   submitNum: number;
+}
+interface QuestionRequest {
+  type: number;
+  sort?: number;
+  page: number;
+  size: number;
+  id?: number;
+  filter?: number;
+  tags?: string;
+  search?: string;
 }
 const data = ref<QuestionListVo[] | undefined>(undefined);
 const dataSource = ref([]);
@@ -265,58 +270,62 @@ const exportFile = () => {
 // 用户信息
 const userInfo = ref()
 watch(pageSize, () => {
-  userList()
+  questionList()
 })
 const edit = (item) => {
-
-  visible.value = true
-  UserControllerService.getUserListUsingGet("", item.id, 1, 10, 1, "").then((res) => {
-    if (res.code == 200) {
-      userInfo.value = res.data.records[0]
-    }
-  })
+  router.push("/management/question/edit/" + item.id)
 }
 const updateUserRole = (item, role) => {
-  UserControllerService.putUserRoleUsingPut(item, role).then((res) => {
+  UserControllerService.putUserRole(item, role).then((res) => {
     if (res.code == 200) {
       Message.success("修改成功！")
-      userList()
+      questionList()
     }
   })
 
 }
 const del = (item) => {
-  UserControllerService.deleteUserUsingDelete(item.id).then((res) => {
+  QuestionControllerService.deleteQuestion(item.id).then((res) => {
     if (res.code == 200) {
       Message.success("删除成功！")
-      userList()
+      questionList()
     }
   })
 }
 const delArr = () => {
-  UserControllerService.deleteUsersUsingDelete(selectedKeys.value).then((res) => {
+  QuestionControllerService.deleteQuestions(selectedKeys.value).then((res) => {
     if (res.code == 200) {
       Message.success("删除成功！")
       selectedKeys.value = []
-      userList()
+      questionList()
     }
   })
 }
 const change = (e) => {
-  QuestionControllerService.questionsUsingGet(0,undefined, e, pageSize.value).then((res) => {
+  QuestionControllerService.questions({
+    findType: 0,
+    pageNow: e,
+    pageSize: pageSize.value
+  }).then((res) => {
     dataSource.value = res.data!.records
-    pagination.total= res.data!.total
+    pagination.total = res.data!.total
   })
 }
 const handleCancel = () => {
   visible.value = false;
 }
 const reset = () => {
-  userList()
+  questionList()
   options.value = ""
+  searchData.value = ""
 }
-const userList = () => {
-  QuestionControllerService.questionsUsingGet(0,undefined, 1, pageSize.value).then((res) => {
+const questionList = () => {
+  const requestBody: QuestionRequest = {
+    findType: 0,
+    pageNow: 1,
+    pageSize: pageSize.value,
+  };
+  QuestionControllerService.questions(requestBody).then((res) => {
     if (res.code == 200) {
       dataSource.value = res.data?.records
       pagination.total = res.data?.total ?? 0
@@ -327,7 +336,14 @@ const userList = () => {
 const search = () => {
   if (searchData.value !== "") {
     if (options.value == "ID") {
-      UserControllerService.getUserListUsingGet("", searchData.value, 1, 10, 1, "").then((res) => {
+      const question = {
+        id: searchData.value,
+        findType: 1,
+        pageNow: 1,
+        pageSize: pageSize.value,
+      };
+
+      QuestionControllerService.questions(question).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -335,8 +351,14 @@ const search = () => {
       }).catch((e) => {
         Message.warning("参数异常")
       })
-    } else if (options.value == "账号") {
-      UserControllerService.getUserListUsingGet("", 1, 1, 10, 2, searchData.value).then((res) => {
+    } else if (options.value == "标题") {
+      const question = {
+        questionName: searchData.value,
+        findType: 2,
+        pageNow: 1,
+        pageSize: pageSize.value,
+      };
+      QuestionControllerService.questions(question).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -344,8 +366,14 @@ const search = () => {
       }).catch((e) => {
         Message.warning("参数异常")
       })
-    } else if (options.value == "邮箱") {
-      UserControllerService.getUserListUsingGet(searchData.value, 1, 1, 10, 3, "").then((res) => {
+    } else if (options.value == "标签列表") {
+      const question = {
+        tags: [searchData.value],
+        findType: 3,
+        pageNow: 1,
+        pageSize: pageSize.value,
+      };
+      QuestionControllerService.questions(question).then((res) => {
         if (res.code == 200) {
           dataSource.value = res.data?.records
           pagination.total = res.data?.total ?? 0
@@ -359,7 +387,8 @@ const search = () => {
   }
 
 }
-userList()
+
+questionList()
 </script>
 <style scoped>
 .demo-basic {
@@ -377,6 +406,11 @@ userList()
   /* 强制文本在边界处断开 */
   overflow: visible;
   /* 确保内容可见 */
+}
+
+.arco-spin {
+  width: 100%;
+  display: block;
 }
 
 .ellipsis {

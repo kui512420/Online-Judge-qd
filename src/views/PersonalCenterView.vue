@@ -91,10 +91,10 @@ const getInfos = () => {
 // 修改名称
 const saveUserName = () => {
 
-  UserControllerService.setUerNameUsingPut("", userInfo.value.userName).then((res) => {
+  UserControllerService.setUerName(userInfo.value.userName).then((res) => {
     if (res.code == 200) {
       message.success("保存成功！")
-      UserControllerService.refreshTokenUsingGet(localStorage.getItem("RefreshToken") ?? "").then((res) => {
+      UserControllerService.refreshToken(localStorage.getItem("RefreshToken") ?? "").then((res) => {
         localStorage.setItem("AccessToken", res.data?.accesstoken)
       })
     } else {
@@ -105,10 +105,10 @@ const saveUserName = () => {
 // 修改个人介绍
 const saveUserProfile = () => {
 
-  UserControllerService.setUserProfileUsingPut(userInfo.value.userProfile).then((res) => {
+  UserControllerService.setUserProfile(userInfo.value.userProfile).then((res) => {
     if (res.code == 200) {
       message.success("保存成功！")
-      UserControllerService.refreshTokenUsingGet(localStorage.getItem("RefreshToken") ?? "").then((res) => {
+      UserControllerService.refreshToken(localStorage.getItem("RefreshToken") ?? "").then((res) => {
         localStorage.setItem("AccessToken", res.data?.accesstoken)
       })
     } else {
@@ -118,7 +118,7 @@ const saveUserProfile = () => {
 }
 // 修改密码
 const saveUserPassowrd = () => {
-  UserControllerService.setUserPasswordUsingPut("", { usrePassword: usrePassword.value, newUserPassword: newUserPassword.value, email: userInfo.value.email, code: code.value }).then((res) => {
+  UserControllerService.setUserPassword( { usrePassword: usrePassword.value, newUserPassword: newUserPassword.value, email: userInfo.value.email, code: code.value }).then((res) => {
     if (res.code == 200) {
       router.push("/")
       localStorage.removeItem("AccessToken")
@@ -137,9 +137,10 @@ const upload = (option) => {
   // 将文件添加到 FormData 中
   formData.append('file', fileItem.file);
   console.log(fileItem.file)
-  FilleControllerService.uploadFileUsingPost("",formData).then((res) => {
-    console.log(res)
+  FilleControllerService.uploadFile("",formData).then((res) => {
     userSotre.login()
+    Message.success("头像更新成功！")
+    window.location.reload()
   })
 }
 getInfos()

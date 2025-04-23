@@ -22,7 +22,7 @@ axios.interceptors.request.use(function (config) {
 axios.interceptors.response.use(async function (response) {
 
   if(response.data.code==40000){
-    const success = await UserControllerService.refreshTokenUsingGet(localStorage.getItem("RefreshToken")??"")
+    const success = await UserControllerService.refreshToken(localStorage.getItem("RefreshToken")??"")
     console.log(success)
     if (success) {
       localStorage.setItem("AccessToken",success.data?.accesstoken)

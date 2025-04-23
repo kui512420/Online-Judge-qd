@@ -1,0 +1,53 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { BaseResponsePageQuestionSubmit } from '../models/BaseResponsePageQuestionSubmit';
+import type { BaseResponseString } from '../models/BaseResponseString';
+import type { SubmitListRequest } from '../models/SubmitListRequest';
+import type { SubmitRequest } from '../models/SubmitRequest';
+import type { CancelablePromise } from '../core/CancelablePromise';
+import { OpenAPI } from '../core/OpenAPI';
+import { request as __request } from '../core/request';
+export class QuestionSubmitControllerService {
+    /**
+     * @param requestBody
+     * @param accesstoken
+     * @returns BaseResponseString OK
+     * @throws ApiError
+     */
+    public static submitQuestion(
+        requestBody: SubmitRequest,
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponseString> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/submit/sub',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param requestBody
+     * @param accesstoken
+     * @returns BaseResponsePageQuestionSubmit OK
+     * @throws ApiError
+     */
+    public static submitQuestionList(
+        requestBody: SubmitListRequest,
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponsePageQuestionSubmit> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/submit/list',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+}

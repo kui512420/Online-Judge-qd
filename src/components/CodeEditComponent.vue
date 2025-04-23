@@ -1,7 +1,7 @@
 <template>
   <div class="wapper">
     <a-split :style="{
-      height: 'auto',
+      height: '100vh',
       width: '100%',
       minWidth: '500px',
       border: '1px solid var(--color-border)'
@@ -9,7 +9,7 @@
       <template #first>
         <a-typography-paragraph>
           <div>
-            <a-tabs default-active-key="1" size="large">
+            <a-tabs @tab-click="getData" default-active-key="1" size="large">
               <a-tab-pane key="1" title="题目">
                 <a-list>
                   <template #header v-if="info">
@@ -21,12 +21,11 @@
                       <div class="rule">
                         <div>时间限制 {{ JSON.parse(info?.judgeConfig || '{}').timeLimit }}ms</div>
                         <div>内存限制 {{ JSON.parse(info?.judgeConfig || '{}').memoryLimit }}kb</div>
-                        <div>堆栈限制 5050</div>
                       </div>
                     </div>
                     <div v-if="info">
                       <h2>问题描述</h2>
-                      {{ info?.content }}
+                      <v-md-preview :text=info?.content></v-md-preview>
                     </div>
                     <div v-if="info">
                       <h2>输入格式</h2>
@@ -44,11 +43,12 @@
               </a-tab-pane>
               <a-tab-pane key="3">
                 <template #title>提交记录</template>
-                提交记录
+                <QuestionSubmitRecord :list=recordInfo></QuestionSubmitRecord>
+                <a-pagination :total="50" />
               </a-tab-pane>
               <a-tab-pane key="4">
                 <template #title>AI小助手</template>
-                AI小助手
+                <AiComponent></AiComponent>
               </a-tab-pane>
             </a-tabs>
           </div>
@@ -69,7 +69,7 @@
               <a-collapse style="background-color: black; width: 100%;  z-index: 999; position: absolute; bottom: 0;">
                 <div style="width: 30%; margin: 0 auto;">
                   <a-button type="primary" status="warning">调试</a-button>
-                  <a-button type="primary" style="margin-left: 20px;">提交检测</a-button>
+                  <a-button type="primary" style="margin-left: 20px;" @click="submit">提交检测</a-button>
                 </div>
                 <a-collapse-item header="打开调试器" key="1">
                   <a-tabs default-active-key="1">
@@ -87,8 +87,6 @@
         </a-typography-paragraph>
       </template>
     </a-split>
-
-
   </div>
 </template>
 
@@ -96,14 +94,18 @@
 import { ref, onMounted, watch } from 'vue';
 import * as monaco from 'monaco-editor';
 import { useRoute } from 'vue-router';
-import { QuestionControllerService } from '@/generated';
+import QuestionSubmitRecord from './QuestionSubmitRecord.vue';
+import AiComponent from './AiComponent.vue';
+import { QuestionControllerService, QuestionSubmitControllerService } from '@/generated';
 import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
-
+import { Message } from '@arco-design/web-vue';
+const activekey = ref("1")
 const route = useRoute();
 const size = ref(0.35);
 const info = ref();
+const recordInfo = ref()
 const selectedLanguage = ref('java');
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
@@ -121,7 +123,7 @@ const codeTemplates = {
 // 获取题目数据
 const fetchData = async () => {
   try {
-    const res = await QuestionControllerService.questionInfoUsingGet(BigInt(route.params.id));
+    const res = await QuestionControllerService.questionInfo(BigInt(route.params.id));
     info.value = res.data;
   } catch (error) {
     console.error('Failed to fetch data:', error);
@@ -144,7 +146,9 @@ const initEditor = () => {
     scrollBeyondLastLine: false
   });
 };
-
+setTimeout(() => {
+  console.log(editor.getValue())
+}, 5000)
 // 切换语言
 const changeLanguage = () => {
   if (!editor) return;
@@ -157,9 +161,35 @@ onMounted(() => {
   fetchData();
   initEditor();
 });
-
+const submit = () => {
+  const requestBody = {
+    language: selectedLanguage.value,
+    code: editor?.getValue(),
+    questionId: (route.params.id)
+  }
+  console.log(requestBody)
+  QuestionSubmitControllerService.submitQuestion(requestBody).then((res) => {
+    if (res.code == 200) {
+      Message.success("提交成功，等待判题")
+    }
+  })
+}
 // 监听语言变化
 watch(selectedLanguage, changeLanguage);
+const getData = (e) => {
+  if (e == 3) {
+    const requestBody = {
+      page: 1,
+      size: 5,
+      type: 3,
+      questionId: route.params.id
+    }
+    QuestionSubmitControllerService.submitQuestionList(requestBody).then((res) => {
+      recordInfo.value = res.data
+    })
+  }
+}
+
 </script>
 
 <style scoped>

@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', () => {
   })
   const theme = false
   const login = async () => {
-    await UserControllerService.getLoginUsingGet().then((res) => {
+    await UserControllerService.getLogin().then((res) => {
       user.value.id = res.data?.id ?? ''
       user.value.userName = res.data?.userName ?? ''
       user.value.email = res.data?.email ?? ''

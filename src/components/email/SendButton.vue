@@ -21,7 +21,7 @@ const props = defineProps<{
 //发送邮箱验证码
 const sendEmail = ()=>{
   sendLoding.value = true
-  UserControllerService.sendEmailUsingPost({"email":props.email}).then((res)=>{
+  UserControllerService.sendEmail({"email":props.email}).then((res)=>{
 
     if(res.code===200){
       Notification.success(res.message)
