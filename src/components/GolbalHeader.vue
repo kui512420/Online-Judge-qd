@@ -3,8 +3,8 @@
   <a-row class="golbalHeader" align="center" :wrap=false>
     <a-col flex="auto">
       <a-menu mode="horizontal" :selected-keys="[route.path]" @menu-item-click="toPathPage">
-        <a-menu-item key="" :style="{ padding: 0, marginRight: '38px' }" disabled>
-          <div class="logo-warpper">
+        <a-menu-item key="" :style="{ padding: 0, marginRight: '38px' }" @click="router.push('/')">
+          <div class="logo-warpper" style="cursor: pointer;">
             <img src="../assets/logo.png" alt="">
             <div class="title">KUIKUI OJ</div>
           </div>
@@ -15,7 +15,7 @@
 
       </a-menu>
     </a-col>
-    <div style="background-color: #fff; display: flex; height: 100%; align-items: center; justify-content: center;">
+    <div class="header-right">
       <ThemeSwitch></ThemeSwitch>
       <MyHeader style="margin-left: 10px;"></MyHeader>
     </div>
@@ -60,6 +60,15 @@ const toPathPage = (key: string) => {
   box-shadow: #eee 1px 1px 5px;
 }
 
+.header-right {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  transition: background-color 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .title {
     display: none;
@@ -83,6 +92,14 @@ const toPathPage = (key: string) => {
 
 .title {
   margin-left: 12px;
-  color: #444;
+  color: var(--color-text);
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* 深色模式下的标题样式 */
+:root.dark .title {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 </style>

@@ -1,0 +1,60 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { BaseResponseInteger } from '../models/BaseResponseInteger';
+import type { BaseResponsePageTag } from '../models/BaseResponsePageTag';
+import type { BaseResponseString } from '../models/BaseResponseString';
+import type { Tag } from '../models/Tag';
+import type { TagRequest } from '../models/TagRequest';
+import type { CancelablePromise } from '../core/CancelablePromise';
+import { OpenAPI } from '../core/OpenAPI';
+import { request as __request } from '../core/request';
+export class TagControllerService {
+    /**
+     * @param requestBody
+     * @returns BaseResponseString OK
+     * @throws ApiError
+     */
+    public static tag(
+        requestBody: Tag,
+    ): CancelablePromise<BaseResponseString> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/tag/tag',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param requestBody
+     * @returns BaseResponsePageTag OK
+     * @throws ApiError
+     */
+    public static list(
+        requestBody: TagRequest,
+    ): CancelablePromise<BaseResponsePageTag> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/tag/list',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param id
+     * @returns BaseResponseInteger OK
+     * @throws ApiError
+     */
+    public static del(
+        id: number,
+    ): CancelablePromise<BaseResponseInteger> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/tag/del/{id}',
+            path: {
+                'id': id,
+            },
+        });
+    }
+}

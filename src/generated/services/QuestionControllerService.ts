@@ -95,6 +95,16 @@ export class QuestionControllerService {
         });
     }
     /**
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static export1(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/question/export',
+        });
+    }
+    /**
      * @param id
      * @returns BaseResponseQuestion OK
      * @throws ApiError

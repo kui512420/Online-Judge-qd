@@ -2,12 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SubmitRequest = {
+export type Tag = {
     id?: number;
-    userId?: number;
-    userName?: string;
-    language?: string;
-    code?: string;
-    questionId?: number;
+    name?: string;
+    description?: string;
+    createTime?: string;
+    updateTime?: string;
+    isDelete?: number;
 };
 

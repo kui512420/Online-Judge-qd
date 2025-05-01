@@ -1,10 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import routes from './routes'
 import Message from '@arco-design/web-vue/es/message'
 import AccessEnum from '@/access/accessEnum'
 import {useUserStore} from '@/stores/userStore'
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(),
   routes: routes,
 })
 router.beforeEach((to, from, next) => {

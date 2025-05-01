@@ -2,12 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type SubmitRequest = {
+export type LoginLog = {
     id?: number;
-    userId?: number;
-    userName?: string;
-    language?: string;
-    code?: string;
-    questionId?: number;
+    user?: string;
+    ip?: string;
+    device?: string;
+    loginTime?: string;
+    status?: number;
+    errorMsg?: string;
 };
 

@@ -1,133 +1,147 @@
 <template>
-  <div class="wapper">
-    <a-spin :loading="aiLoading" tip="生成中...">
-      <a-button type="dashed" status="success" @click="AIvisible = !AIvisible">
-        AI一键生成
-      </a-button>
-      <div>
-        题目标题：
-        <a-input
-          v-model="formData.title"
-          :style="{ width: '320px' }"
-          placeholder="题目标题"
-          allow-clear
-        />
-      </div>
-      <div>
-        题目标签：
-        <a-input-tag
-          v-model="formData.tagsArray"
-          :style="{ width: '320px' }"
-          placeholder="题目标签"
-          allow-clear
-        />
-      </div>
-      <div>
-        <div style="margin-bottom: 10px">题目内容：</div>
-        <v-md-editor v-model="formData.content" height="400px"></v-md-editor>
-      </div>
-      <div style="display: flex; align-items: left; flex-direction: column">
-        判题配置：
+  <a-card>
+    <div class="wapper">
+      <a-spin :loading="aiLoading" tip="生成中...">
+        <a-button type="dashed" status="success" @click="AIvisible = !AIvisible">
+          AI一键生成
+        </a-button>
         <div>
-          时间限制(ms)：
-          <a-input-number
-            style="margin-left: 3px; margin-bottom: 10px"
-            v-model="formData.timeLimit"
-            :style="{ width: '120px' }"
-            placeholder="时间限制"
-            :min="100"
-            :max="5000"
-            :step="100"
-            mode="button"
-            class="input-demo"
+          题目标题：
+          <a-input
+            v-model="formData.title"
+            :style="{ width: '320px' }"
+            placeholder="题目标题"
+            allow-clear
           />
         </div>
         <div>
-          内存限制(MB)：
-          <a-input-number
-            v-model="formData.memoryLimit"
-            :style="{ width: '120px' }"
-            placeholder="内存限制"
-            :min="10"
-            :max="1024"
-            :step="10"
-            mode="button"
-            class="input-demo"
+          题目标签：
+          <a-input-tag
+            v-model="formData.tagsArray"
+            :style="{ width: '320px' }"
+            placeholder="题目标签"
+            allow-clear
           />
         </div>
-      </div>
-
-      <div class="test-cases">
-        <div class="test-cases-header">
-          测试用例配置：
-          <a-button type="outline" status="warning" @click="addTestCase">新增用例</a-button>
+        <div>
+          <div style="margin-bottom: 10px">题目内容：</div>
+          <v-md-editor v-model="formData.content" height="400px"></v-md-editor>
         </div>
-        <div class="test-case-list">
-          <div v-for="(testCase, index) in formData.testCases" :key="index" class="test-case-item">
-            <div class="test-case-title">用例 {{ index + 1 }}</div>
-            <div class="test-case-input">
-              <span>输入：</span>
-              <a-textarea
-                v-model="testCase.input"
-                placeholder="请输入测试用例输入"
-                :auto-size="{ minRows: 2, maxRows: 5 }"
-              />
-            </div>
-            <div class="test-case-output">
-              <span>输出：</span>
-              <a-textarea
-                v-model="testCase.output"
-                placeholder="请输入测试用例预期输出"
-                :auto-size="{ minRows: 2, maxRows: 5 }"
-              />
-            </div>
-            <a-button
-              type="outline"
-              status="danger"
-              @click="removeTestCase(index)"
-              class="remove-btn"
-            >
-              删除
-            </a-button>
+        <div style="display: flex; align-items: left; flex-direction: column">
+          判题配置：
+          <div>
+            时间限制(ms)：
+            <a-input-number
+              style="margin-left: 3px; margin-bottom: 10px"
+              v-model="formData.timeLimit"
+              :style="{ width: '120px' }"
+              placeholder="时间限制"
+              :min="100"
+              :max="5000"
+              :step="100"
+              mode="button"
+              class="input-demo"
+            />
+          </div>
+          <div>
+            内存限制(MB)：
+            <a-input-number
+              v-model="formData.memoryLimit"
+              :style="{ width: '120px' }"
+              placeholder="内存限制"
+              :min="10"
+              :max="1024"
+              :step="10"
+              mode="button"
+              class="input-demo"
+            />
           </div>
         </div>
-      </div>
 
-      <div class="actions">
-        <a-button type="primary" @click="handleSubmit" :loading="loading">保存题目</a-button>
-        <a-button type="outline" @click="handleReset" style="margin-left: 12px">重置</a-button>
-      </div>
-      <a-modal v-model:visible="AIvisible" @ok="handleOk" @cancel="handleCancel">
-        <template #title> AI赋能OJ </template>
-        <div>
-          用例数量：
-          <a-input-number
-            v-model="questionCount"
-            :style="{ width: '320px' }"
-            class="input-demo"
-            :min="1"
-            :max="100"
-          />
+        <div class="test-cases">
+          <div class="test-cases-header">
+            测试用例配置：
+            <a-button type="outline" status="warning" @click="addTestCase">新增用例</a-button>
+          </div>
+          <div class="test-case-list">
+            <div
+              v-for="(testCase, index) in formData.testCases"
+              :key="index"
+              class="test-case-item"
+            >
+              <div class="test-case-title">用例 {{ index + 1 }}</div>
+              <div class="test-case-input">
+                <span>输入：</span>
+                <a-textarea
+                  v-model="testCase.input"
+                  placeholder="请输入测试用例输入"
+                  :auto-size="{ minRows: 2, maxRows: 5 }"
+                />
+              </div>
+              <div class="test-case-output">
+                <span>输出：</span>
+                <a-textarea
+                  v-model="testCase.output"
+                  placeholder="请输入测试用例预期输出"
+                  :auto-size="{ minRows: 2, maxRows: 5 }"
+                />
+              </div>
+              <a-button
+                type="outline"
+                status="danger"
+                @click="removeTestCase(index)"
+                class="remove-btn"
+              >
+                删除
+              </a-button>
+            </div>
+          </div>
         </div>
-        <div>
-          出题难度：
-          <a-select v-model="questionDaf" :style="{ width: '320px' }" placeholder="请选择题目难度">
-            <a-option>高</a-option>
-            <a-option>中</a-option>
-            <a-option>低</a-option>
-          </a-select>
+
+        <div class="actions">
+          <a-button type="primary" @click="handleSubmit" :loading="loading">保存题目</a-button>
+          <a-button type="outline" @click="handleReset" style="margin-left: 12px">重置</a-button>
         </div>
-        <div>
-          出题类型：
-          <a-select v-model="questionType" :style="{ width: '320px' }" placeholder="请选择题目类型">
-            <a-option>B+树</a-option>
-            <a-option>哈希算法</a-option>
-            <a-option>递归算法</a-option>
-          </a-select>
-        </div>
-      </a-modal>
-    </a-spin>
-  </div>
+        <a-modal v-model:visible="AIvisible" @ok="handleOk" @cancel="handleCancel">
+          <template #title> AI赋能OJ </template>
+          <div>
+            用例数量：
+            <a-input-number
+              v-model="questionCount"
+              :style="{ width: '320px' }"
+              class="input-demo"
+              :min="1"
+              :max="100"
+            />
+          </div>
+          <div>
+            出题难度：
+            <a-select
+              v-model="questionDaf"
+              :style="{ width: '320px' }"
+              placeholder="请选择题目难度"
+            >
+              <a-option>高</a-option>
+              <a-option>中</a-option>
+              <a-option>低</a-option>
+            </a-select>
+          </div>
+          <div>
+            出题类型：
+            <a-select
+              v-model="questionType"
+              :style="{ width: '320px' }"
+              placeholder="请选择题目类型"
+            >
+              <a-option>B+树</a-option>
+              <a-option>哈希算法</a-option>
+              <a-option>递归算法</a-option>
+            </a-select>
+          </div>
+        </a-modal>
+      </a-spin>
+    </div>
+  </a-card>
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <a-card>
     <div style="display: flex; align-items: center; margin-bottom: 10px">
       <a-select v-model="options" :style="{ width: '120px' }" placeholder="查询条件">
         <a-option>提交ID</a-option>
@@ -13,12 +13,6 @@
         placeholder="请输入数据"
         search-button
       />
-      <a-button status="warning" @click="exportFile">
-        <template #icon>
-          <icon-download></icon-download>
-        </template>
-        导出
-      </a-button>
 
       <a-button type="dashed" @click="reset"> 重置 </a-button>
     </div>
@@ -123,7 +117,7 @@
       show-jumper
       show-page-size
     />
-  </div>
+  </a-card>
 </template>
 
 <script setup lang="ts">
@@ -184,7 +178,7 @@ const columns = ref([
     title: '题目ID',
     dataIndex: 'questionId',
     key: 'questionId',
-    width: 180,
+    width: 210,
     minWidth: 180,
   },
   {
@@ -192,7 +186,7 @@ const columns = ref([
     dataIndex: 'userId',
     key: 'userId',
     slotName: 'userId',
-    width: 180,
+    width: 210,
     minWidth: 180,
   },
   {
@@ -200,7 +194,7 @@ const columns = ref([
     dataIndex: 'createTime',
     key: 'createTime',
     slotName: 'createTime',
-    width: 120,
+    width: 240,
   },
   {
     title: '操作',
@@ -234,24 +228,6 @@ const getRandomColor = () => {
     color += letters[Math.floor(Math.random() * 16)]
   }
   return color
-}
-const exportFile = () => {
-  axios
-    .post('/api/user/export', null, {
-      responseType: 'blob',
-    })
-    .then((response) => {
-      const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = '用户.xls'
-      a.click()
-      window.URL.revokeObjectURL(url)
-    })
-    .catch(() => {
-      Message.error('导出失败' + error)
-    })
 }
 
 // 用户信息
@@ -288,13 +264,16 @@ const delArr = () => {
   })
 }
 const change = (e) => {
-  QuestionControllerService.questions({
-    findType: 0,
-    pageNow: e,
-    pageSize: pageSize.value,
-  }).then((res) => {
-    dataSource.value = res.data!.records
-    pagination.total = res.data!.total
+  const requestBody: QuestionRequest = {
+    type: 0,
+    page: e,
+    size: pageSize.value,
+  }
+  QuestionSubmitControllerService.submitQuestionList(requestBody).then((res) => {
+    if (res.code == 200) {
+      dataSource.value = res.data?.records
+      pagination.total = res.data?.total ?? 0
+    }
   })
 }
 const handleCancel = () => {
@@ -320,60 +299,33 @@ const questionList = () => {
 }
 const search = () => {
   if (searchData.value !== '') {
-    if (options.value == 'ID') {
-      const question = {
-        id: searchData.value,
-        findType: 1,
-        pageNow: 1,
-        pageSize: pageSize.value,
-      }
-
-      QuestionControllerService.questions(question)
-        .then((res) => {
-          if (res.code == 200) {
-            dataSource.value = res.data?.records
-            pagination.total = res.data?.total ?? 0
-          }
-        })
-        .catch((e) => {
-          Message.warning('参数异常')
-        })
-    } else if (options.value == '标题') {
-      const question = {
-        questionName: searchData.value,
-        findType: 2,
-        pageNow: 1,
-        pageSize: pageSize.value,
-      }
-      QuestionControllerService.questions(question)
-        .then((res) => {
-          if (res.code == 200) {
-            dataSource.value = res.data?.records
-            pagination.total = res.data?.total ?? 0
-          }
-        })
-        .catch((e) => {
-          Message.warning('参数异常')
-        })
-    } else if (options.value == '标签列表') {
-      const question = {
-        tags: [searchData.value],
-        findType: 3,
-        pageNow: 1,
-        pageSize: pageSize.value,
-      }
-      QuestionControllerService.questions(question)
-        .then((res) => {
-          if (res.code == 200) {
-            dataSource.value = res.data?.records
-            pagination.total = res.data?.total ?? 0
-          }
-        })
-        .catch((e) => {
-          Message.warning('参数异常')
-        })
-    } else {
+    const requestBody: QuestionRequest = {
+      type: 0,
+      page: 1,
+      size: pageSize.value,
     }
+
+    if (options.value === '提交ID') {
+      requestBody.id = parseInt(searchData.value)
+      requestBody.type = 1
+    } else if (options.value === '题目ID') {
+      requestBody.questionId = parseInt(searchData.value)
+      requestBody.type = 2
+    } else if (options.value === '用户ID') {
+      requestBody.userId = parseInt(searchData.value)
+      requestBody.type = 3
+    }
+
+    QuestionSubmitControllerService.submitQuestionList(requestBody)
+      .then((res) => {
+        if (res.code == 200) {
+          dataSource.value = res.data?.records
+          pagination.total = res.data?.total ?? 0
+        }
+      })
+      .catch(() => {
+        Message.warning('参数异常')
+      })
   }
 }
 const handleOk = () => {

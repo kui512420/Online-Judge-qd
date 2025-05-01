@@ -109,7 +109,7 @@ const sendMessage = async () => {
     lastMessage.content = '正在思考...'
     await scrollToBottom()
 
-    const response = await fetch('http://localhost:5210/api/chat', {
+    const response = await fetch('http://localhost/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -3,9 +3,10 @@
     <a-card class="custom-card">
       <div class="card-content">
         <div>
-          <h3>第7场算法赛</h3>
-          <div>发布人：魁魁</div>
-          <div>比赛时间：04月05日 19:00-21:00</div>
+          <h2>{{ props.competition.name }}</h2>
+          <div>发布人：{{ props.competition.creatorName }}</div>
+          <div>比赛时间：{{ props.competition.startTime }} - {{ props.competition.endTime }}</div>
+          <a-tag :color="getStatusColor()">{{ getStatusText() }}</a-tag>
         </div>
 
         <div class="card-content-right">
@@ -13,7 +14,9 @@
             <icon-share-internal />
             分享
           </div>
-          <a-button type="primary" shape="round" @click="goToCompetitionInfo">立即报名</a-button>
+          <a-button type="primary" shape="round" @click="goToCompetitionInfo(props.competition.id)"
+            >立即报名</a-button
+          >
         </div>
       </div>
     </a-card>
@@ -23,11 +26,45 @@
 <script setup lang="ts">
 import { IconShareInternal } from '@arco-design/web-vue/es/icon'
 import { useRouter } from 'vue-router'
+import type { CompetitionVO } from '@/generated/models/CompetitionVO'
 
+const props = defineProps<{
+  competition: CompetitionVO
+}>()
 const router = useRouter()
 
-const goToCompetitionInfo = () => {
-  router.push('/competitionInfo/7')
+const goToCompetitionInfo = (id: number | undefined) => {
+  if (id) {
+    router.push('/competitionInfo/' + id)
+  }
+}
+
+const getStatusText = () => {
+  const now = new Date().getTime()
+  const startTime = new Date(props.competition.startTime).getTime()
+  const endTime = new Date(props.competition.endTime).getTime()
+
+  if (now < startTime) {
+    return '未开始'
+  } else if (now > endTime) {
+    return '已结束'
+  } else {
+    return '进行中'
+  }
+}
+
+const getStatusColor = () => {
+  const status = getStatusText()
+  switch (status) {
+    case '未开始':
+      return 'blue'
+    case '进行中':
+      return 'green'
+    case '已结束':
+      return 'red'
+    default:
+      return 'default'
+  }
 }
 </script>
 
@@ -49,6 +86,7 @@ const goToCompetitionInfo = () => {
 .card-content {
   display: flex;
   justify-content: space-between;
+  margin: 20px 0;
 }
 .custom-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);

@@ -43,7 +43,7 @@
           </a-table-column>
           <a-table-column title="通过率">
             <template #cell="{ record }">
-              {{ (record.acceptedNum / record.submitNum).toFixed(2) }}
+              {{ ((record.acceptedNum / record.submitNum) * 100).toFixed(2) }}%
             </template>
           </a-table-column>
           <a-table-column title="挑战人数" data-index="submitNum"></a-table-column>
@@ -67,7 +67,7 @@
     </div>
     <div class="content-right">
       <div class="card-list">
-        <a-card :style="{ width: '360px' }" title="提交统计最近30天" class="hover-commit">
+        <a-card :style="{ width: '360px' }" title="平台提交统计" class="hover-commit">
           <div class="commit">
             <div>
               <div><img width="30px" src="../assets/icon/提交成功.png" alt="" /></div>
@@ -96,8 +96,10 @@
             v-for="(item, index) in tags"
             :key="index"
             :style="{
-              color: selectedTags.includes(item) ? 'white' : 'black',
-              backgroundColor: selectedTags.includes(item) ? '#2d8cf0' : 'transparent',
+              color: selectedTags.includes(item) ? 'var(--color-text-1)' : 'var(--color-text-2)',
+              backgroundColor: selectedTags.includes(item)
+                ? 'var(--color-primary-light-1)'
+                : 'transparent',
             }"
             @click="handleTagClick(item)"
           >
@@ -111,7 +113,7 @@
 <script setup lang="ts">
 import router from '@/router'
 import { reactive, ref, watch } from 'vue'
-import { QuestionControllerService } from '@/generated'
+import { QuestionControllerService, TagControllerService } from '@/generated'
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon'
 
 // 封装 Question 类型
@@ -142,28 +144,7 @@ window.addEventListener('resize', () => {
   isMobile.value = window.innerWidth <= 768
 })
 
-const tags = ref([
-  '排序算法',
-  '搜索算法',
-  '图算法',
-  '动态规划',
-  '贪心算法',
-  '分治算法',
-  '回溯算法',
-  '深度优先搜索',
-  '广度优先搜索',
-  '哈希算法',
-  '递归算法',
-  '最短路径算法',
-  '最小生成树算法',
-  '字符串匹配算法',
-  '数值计算算法',
-  '机器学习算法',
-  '深度学习算法',
-  '遗传算法',
-  '蚁群算法',
-  '模拟退火算法',
-])
+const tags = ref([])
 interface QuestionRequest {
   type: number
   sort?: number
@@ -205,6 +186,13 @@ const fetchQuestions = (
 
 watch(pageSize, () => {
   getList()
+})
+
+TagControllerService.list({ type: 0, count: 100, page: 1 }).then((res) => {
+  const tagsa = res.data.records
+  tagsa.forEach((item) => {
+    tags.value.push(item.name)
+  })
 })
 
 // 处理标签点击事件的函数
@@ -300,6 +288,9 @@ watch(searchData, () => {
   background-color: #f8f9fa;
 }
 
+.dark .commit {
+  background-color: black;
+}
 .card-list {
   display: flex;
   flex-direction: column;

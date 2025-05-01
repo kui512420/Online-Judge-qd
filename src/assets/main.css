@@ -33,3 +33,12 @@ a,
     padding: 0 2rem;
   }
 }
+
+/* 添加暗黑模式标签文字颜色 */
+:deep(.tag-selector) {
+  color: var(--color-text-1) !important;
+}
+
+.dark :deep(.tag-selector) {
+  color: #ffffff !important;
+}

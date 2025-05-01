@@ -35,12 +35,19 @@
     <div class="page-two">
       <div>
         <h3 class="title-size-two">功能特色</h3>
-        <a-carousel :style="{
-          width: '60%',
-          height: '320px',
-          margin: '0 auto',
-        }" :auto-play="true" trigger="hover" indicator-class="" animation-name="fade" show-arrow="never"
-          indicator-position="outer">
+        <a-carousel
+          :style="{
+            width: '60%',
+            height: '320px',
+            margin: '0 auto',
+          }"
+          :auto-play="true"
+          trigger="hover"
+          indicator-class=""
+          animation-name="fade"
+          show-arrow="never"
+          indicator-position="outer"
+        >
           <a-carousel-item v-for="(item, index) in images" :key="index">
             <div class="image-container">
               <div>
@@ -67,7 +74,7 @@
 
     <div class="page-three">
       <h3 class="title-size-two">核心特性</h3>
-      <div class="card-wapper" :class="{ 'toUp': isAn }">
+      <div class="card-wapper" :class="{ toUp: isAn }">
         <a-card>
           <div class="card-cast">
             <div class="card-cast-icon">⚡️</div>
@@ -134,22 +141,22 @@ const images = [
     linkName: '查看排行榜',
   },
 ]
-const scrollHeight = ref(0);
+const scrollHeight = ref(0)
 const isAn = ref(false)
 const handleScroll = () => {
-  scrollHeight.value = window.scrollY;
+  scrollHeight.value = window.scrollY
   if (scrollHeight.value > 420) {
     isAn.value = true
   }
-};
+}
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
+  window.addEventListener('scroll', handleScroll)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
+  window.removeEventListener('scroll', handleScroll)
+})
 const goQuestionBank = () => {
   router.push('/questionBank')
 }
@@ -163,7 +170,6 @@ const goCompetition = () => {
 
 <style scoped>
 .card-wapper {
-
   display: flex;
   justify-content: space-around;
 }
@@ -277,6 +283,9 @@ const goCompetition = () => {
   font-size: 30px;
   padding: 20px;
 }
+.dark .desc {
+  color: #eeeeee;
+}
 
 .title-size {
   font-size: 40px;
@@ -324,7 +333,7 @@ const goCompetition = () => {
   }
 
   .desc-add {
-    font-size: 8px;
+    font-size: 12px;
   }
 
   .title-size {

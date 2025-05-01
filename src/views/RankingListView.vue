@@ -31,7 +31,7 @@
           <a-table-column title="提交数量" data-index="submissionCount" align="center" />
           <a-table-column title="通过率" align="center">
             <template #cell="{ record }">
-              {{ ((record.solvedCount / record.submissionCount) * 100).toFixed(1) }}%
+              {{ (record.solvedCount / record.submissionCount) * 100 }}%
             </template>
           </a-table-column>
         </template>

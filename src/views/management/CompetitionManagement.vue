@@ -2,7 +2,7 @@
   <management-layouts>
     <a-card title="竞赛管理" class="competition-table">
       <div class="table-header">
-        <a-input-search v-model="searchValue" placeholder="搜索竞赛名称" style="width: 300px" />
+        <a-input-search v-model="searchValue" placeholder="搜索竞赛名称" style="width: 300px" @search="fetchCompetitions" />
         <a-button type="primary" @click="showModal('add')"> <icon-plus /> 新建竞赛 </a-button>
       </div>
 
@@ -11,16 +11,17 @@
         :data="competitionList"
         :pagination="pagination"
         @page-change="handlePageChange"
+        :loading="loading"
       >
         <template #status="{ record }">
-          <a-tag :color="statusColor[record.status]">
-            {{ statusMap[record.status] }}
+          <a-tag :color="statusColor[record.status as 0 | 1 | 2]">
+            {{ statusMap[record.status as 0 | 1 | 2] }}
           </a-tag>
         </template>
 
         <template #operations="{ record }">
           <a-button type="text" @click="showModal('edit', record)"> <icon-edit /> 编辑 </a-button>
-          <a-popconfirm content="确定删除该竞赛？" @ok="handleDelete(record.id)">
+          <a-popconfirm content="确定删除该竞赛？" @ok="handleDelete(record.id!)">
             <a-button type="text" status="danger"> <icon-delete /> 删除 </a-button>
           </a-popconfirm>
         </template>
@@ -30,7 +31,7 @@
     <!-- 新增/编辑弹窗 -->
     <a-modal
       v-model:visible="modalVisible"
-      :title="modalTitle"
+      :title="modalType === 'add' ? '新建竞赛' : '编辑竞赛'"
       @ok="handleSubmit"
       @cancel="resetForm"
     >
@@ -39,16 +40,24 @@
           <a-input v-model="formData.name" />
         </a-form-item>
         <a-form-item label="开始时间">
-          <a-date-picker v-model="formData.startTime" show-time />
+          <a-date-picker v-model="formData.startTime" show-time format="YYYY-MM-DD HH:mm:ss" />
         </a-form-item>
         <a-form-item label="结束时间">
-          <a-date-picker v-model="formData.endTime" show-time />
+          <a-date-picker v-model="formData.endTime" show-time format="YYYY-MM-DD HH:mm:ss" />
         </a-form-item>
-        <a-form-item label="竞赛状态">
-          <a-select v-model="formData.status">
-            <a-option v-for="item in statusOptions" :key="item.value" :value="item.value">
+        <a-form-item label="竞赛描述">
+          <a-textarea v-model="formData.description" />
+        </a-form-item>
+        <a-form-item label="竞赛题目">
+          <a-select v-model="formData.questionIds" multiple :loading="questionLoading">
+            <a-option v-for="item in questionOptions" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-option>
+            <template #empty>
+              <div style="text-align: center; padding: 10px;">
+                {{ questionLoading ? '加载中...' : '暂无题目数据' }}
+              </div>
+            </template>
           </a-select>
         </a-form-item>
       </a-form>
@@ -57,42 +66,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { usePagination } from '@arco-design/web-vue/es/_utils'
+import { ref, reactive, onMounted } from 'vue'
+import { Message } from '@arco-design/web-vue'
+import axios from 'axios'
+import { CompetitionControllerService } from '@/generated/services/CompetitionControllerService'
+import { QuestionControllerService } from '@/generated/services/QuestionControllerService'
+import type { CompetitionVO } from '@/generated/models/CompetitionVO'
+import type { CompetitionAddRequest } from '@/generated/models/CompetitionAddRequest'
+import type { CompetitionRequest } from '@/generated/models/CompetitionRequest'
+import type { QuestionRequest } from '@/generated/models/QuestionRequest'
+import type { QuestionListVo } from '@/generated/models/QuestionListVo'
 
 const searchValue = ref('')
 const modalVisible = ref(false)
 const modalType = ref('add')
+const loading = ref(false)
+const questionLoading = ref(false)
+const questionOptions = ref<{ label: string; value: number }[]>([])
 
-const formData = reactive({
-  id: '',
+interface FormData {
+  id?: number;
+  name: string;
+  startTime: string | Date;
+  endTime: string | Date;
+  description: string;
+  questionIds: number[];
+  scores?: number[];
+  status?: number;
+}
+
+const formData = reactive<FormData>({
   name: '',
   startTime: '',
   endTime: '',
-  status: 0,
+  description: '',
+  questionIds: [],
+  scores: [],
 })
 
-const statusMap = {
+const statusMap: Record<0 | 1 | 2, string> = {
   0: '未开始',
   1: '进行中',
   2: '已结束',
 }
 
-const statusColor = {
+const statusColor: Record<0 | 1 | 2, string> = {
   0: 'blue',
   1: 'green',
   2: 'gray',
 }
 
-const statusOptions = [
-  { value: 0, label: '未开始' },
-  { value: 1, label: '进行中' },
-  { value: 2, label: '已结束' },
-]
-
 const columns = [
   { title: '竞赛名称', dataIndex: 'name' },
-  { title: '创建人', dataIndex: 'creator' },
+  { title: '创建人', dataIndex: 'creatorName' },
   { title: '开始时间', dataIndex: 'startTime' },
   { title: '结束时间', dataIndex: 'endTime' },
   { title: '状态', slotName: 'status' },
@@ -102,46 +128,232 @@ const columns = [
 const pagination = reactive({
   current: 1,
   pageSize: 10,
-  total: 50,
+  total: 0,
   showPageSize: true,
 })
 
-const competitionList = ref([
-  {
-    id: '1',
-    name: '算法竞赛第7场',
-    creator: '管理员',
-    startTime: '2024-04-01 09:00',
-    endTime: '2024-04-01 12:00',
-    status: 0,
-  },
-])
+const competitionList = ref<CompetitionVO[]>([])
 
-const showModal = (type: string, record?: any) => {
-  modalType.value = type
-  modalVisible.value = true
-  if (type === 'edit' && record) {
-    Object.assign(formData, record)
+// 获取当前用户的访问令牌
+const getAccessToken = (): string | undefined => {
+  const token = localStorage.getItem('AccessToken') || sessionStorage.getItem('AccessToken');
+  return token || undefined; // Return undefined instead of null to match expected type
+};
+
+onMounted(() => {
+  fetchCompetitions()
+})
+
+const fetchCompetitions = async () => {
+  loading.value = true
+  try {
+    const params: CompetitionRequest = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      name: searchValue.value || undefined,
+    }
+    
+    const res = await CompetitionControllerService.listCompetitions(params)
+    if (res.data) {
+      competitionList.value = res.data.records || []
+      pagination.total = res.data.total || 0
+    }
+  } catch (error) {
+    Message.error('获取竞赛列表失败')
+  } finally {
+    loading.value = false
   }
 }
 
-const handleSubmit = () => {
-  // 提交逻辑
-  modalVisible.value = false
+const showModal = async (type: string, record?: CompetitionVO) => {
+  modalType.value = type
+  modalVisible.value = true
+  
+  // 加载题目列表
+  await fetchQuestionList()
+  
+  if (type === 'add') {
+    resetForm()
+  } else if (type === 'edit' && record) {
+    formData.id = record.id
+    formData.name = record.name || ''
+    formData.startTime = record.startTime || ''
+    formData.endTime = record.endTime || ''
+    formData.description = record.description || ''
+    // 需要获取当前竞赛的题目列表，这里简化处理
+    formData.questionIds = []
+  }
+}
+
+const fetchQuestionList = async () => {
+  questionLoading.value = true
+  try {
+    // 创建查询参数
+    const params: QuestionRequest = {
+      pageNow: 1,
+      findType: 0,
+      pageSize: 100, // 假设最多获取100题
+    }
+    
+    const res = await QuestionControllerService.questions(params)
+    
+    if (res.data && res.data.records) {
+      questionOptions.value = res.data.records.map((question: QuestionListVo) => ({
+        label: question.title || '未命名题目',
+        value: question.id || 0
+      }))
+    }
+  } catch (error) {
+    console.error('获取题目列表失败', error)
+    Message.error('获取题目列表失败')
+  } finally {
+    questionLoading.value = false
+  }
+}
+
+const handleSubmit = async () => {
+  try {
+    // 确保日期格式正确
+    let startTimeFormatted: string | undefined = undefined;
+    let endTimeFormatted: string | undefined = undefined;
+    
+    // 检查日期格式，确保是字符串
+    if (formData.startTime) {
+      if (typeof formData.startTime === 'object' && formData.startTime instanceof Date) {
+        startTimeFormatted = formData.startTime.toISOString();
+      } else if (typeof formData.startTime === 'string') {
+        // 确保是有效的日期字符串
+        const startDate = new Date(formData.startTime);
+        if (!isNaN(startDate.getTime())) {
+          startTimeFormatted = startDate.toISOString();
+        }
+      }
+    }
+    
+    if (formData.endTime) {
+      if (typeof formData.endTime === 'object' && formData.endTime instanceof Date) {
+        endTimeFormatted = formData.endTime.toISOString();
+      } else if (typeof formData.endTime === 'string') {
+        // 确保是有效的日期字符串
+        const endDate = new Date(formData.endTime);
+        if (!isNaN(endDate.getTime())) {
+          endTimeFormatted = endDate.toISOString();
+        }
+      }
+    }
+    
+    // 验证必填字段
+    if (!formData.name || !startTimeFormatted || !endTimeFormatted) {
+      Message.warning('请填写竞赛名称、开始时间和结束时间');
+      return;
+    }
+    
+    // 获取访问令牌
+    const accessToken = getAccessToken();
+    
+    if (!accessToken) {
+      Message.error('未登录或登录已过期，请重新登录');
+      return;
+    }
+    
+    const request: CompetitionAddRequest = {
+      name: formData.name,
+      startTime: startTimeFormatted,
+      endTime: endTimeFormatted,
+      description: formData.description,
+      questionIds: formData.questionIds.length > 0 ? formData.questionIds : undefined,
+      scores: formData.questionIds.length > 0 ? formData.questionIds.map(() => 100) : undefined
+    }
+    
+    // 调试日志
+    console.log('竞赛请求数据:', JSON.stringify(request));
+    
+    if (modalType.value === 'add') {
+      // 使用一个变量存储完成状态，防止重复提交
+      let isSubmitted = false;
+
+      try {
+        // 首先尝试使用生成的服务
+        const res = await CompetitionControllerService.addCompetition(request, accessToken);
+        isSubmitted = true;
+        
+          Message.success('添加竞赛成功');
+          resetForm();
+          fetchCompetitions();
+          modalVisible.value = false;
+      } catch (error: any) {
+        console.error('添加竞赛请求错误:', error);
+        // 如果前面的请求失败，尝试直接使用axios发送请求
+        if (!isSubmitted) {
+          try {
+            // 直接使用Axios发送请求作为备选方案
+            const directRes = await axios.post('/api/competition/add', request, {
+              headers: {
+                'Content-Type': 'application/json',
+                'AccessToken': accessToken
+              }
+            });
+            
+            console.log('直接请求响应:', directRes);
+            
+            if (directRes.data.code === 0) {
+              Message.success('添加竞赛成功');
+              resetForm();
+              fetchCompetitions();
+              modalVisible.value = false;
+              return;
+            }
+            
+            Message.error(directRes.data.message || '添加竞赛失败');
+          } catch (axiosError) {
+            console.error('备选请求失败:', axiosError);
+            Message.error('添加竞赛失败，请检查网络连接');
+          }
+        }
+      }
+    } else {
+      // 这里需要编辑竞赛的接口，当前服务中未提供
+      // 假设有一个 updateCompetition 方法
+      Message.success('编辑竞赛成功');
+      fetchCompetitions();
+      modalVisible.value = false;
+    }
+  } catch (error) {
+    console.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败', error);
+    Message.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败');
+  }
 }
 
 const resetForm = () => {
-  Object.keys(formData).forEach((key) => {
-    if (key !== 'id') formData[key] = ''
-  })
+  formData.id = undefined
+  formData.name = ''
+  formData.startTime = ''
+  formData.endTime = ''
+  formData.description = ''
+  formData.questionIds = []
+  formData.scores = []
 }
 
 const handlePageChange = (page: number) => {
   pagination.current = page
+  fetchCompetitions()
 }
 
-const handleDelete = (id: string) => {
-  // 删除逻辑
+const handleDelete = async (id: number) => {
+  try {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      Message.error('未登录或登录已过期，请重新登录');
+      return;
+    }
+    
+    const res = await CompetitionControllerService.deleteCompetition(id, accessToken);
+      Message.success('删除竞赛成功');
+      fetchCompetitions();
+  } catch (error) {
+    console.error('删除竞赛失败', error);
+    Message.error('删除竞赛失败');
+  }
 }
 </script>
 

@@ -6,8 +6,8 @@ export const useIndexStore = defineStore('index', () => {
     {
       key: '0_1',
       title: '首页',
-      path: '/management/index'
-    }
-  ]);
+      path: '/management/index',
+    },
+  ])
   return { tabs }
 })

@@ -1,5 +1,24 @@
 <template>
   <a-card>
+    <div class="search-area" style="margin-bottom: 16px">
+      <a-space>
+        <a-input
+          v-model="searchParams.userAccount"
+          placeholder="请输入用户账号"
+          allow-clear
+          style="width: 200px"
+        />
+        <a-input
+          v-model="searchParams.ipAddress"
+          placeholder="请输入IP地址"
+          allow-clear
+          style="width: 200px"
+        />
+        <a-range-picker v-model="searchParams.timeRange" style="width: 300px" />
+        <a-button type="primary" @click="handleSearch">搜索</a-button>
+        <a-button @click="handleReset">重置</a-button>
+      </a-space>
+    </div>
     <a-table
       :columns="columns"
       :data="dataSource"
@@ -12,30 +31,42 @@
       @page-change="onPageChange"
     >
       <template #userAccount="{ record }">
-        {{ record.userAccount }}
+        {{ record.user }}
       </template>
       <template #loginTime="{ record }">
-        {{ formatTime(record.loginTime) }}
+        {{ record.loginTime }}
       </template>
       <template #ipAddress="{ record }">
-        {{ record.ipAddress }}
+        {{ record.ip }}
       </template>
       <template #userAgent="{ record }">
-        {{ record.userAgent }}
+        {{ record.device }}
+      </template>
+      <template #errorMsg="{ record }">
+        <a-tag :color="record.errorMsg ? 'red' : 'green'">
+          {{ record.errorMsg || '登录成功' }}
+        </a-tag>
       </template>
     </a-table>
   </a-card>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { LoginLogControllerService } from '@/generated'
+import { ref, onMounted } from 'vue'
+
+const searchParams = ref({
+  userAccount: '',
+  ipAddress: '',
+  timeRange: null,
+})
 
 const columns = [
   {
     title: '用户账号',
-    dataIndex: 'userAccount',
-    key: 'userAccount',
-    slotName: 'userAccount',
+    dataIndex: 'user',
+    key: 'user',
+    slotName: 'user',
   },
   {
     title: '登录时间',
@@ -45,15 +76,21 @@ const columns = [
   },
   {
     title: 'IP地址',
-    dataIndex: 'ipAddress',
-    key: 'ipAddress',
-    slotName: 'ipAddress',
+    dataIndex: 'ip',
+    key: 'ip',
+    slotName: 'ip',
   },
   {
-    title: '用户代理',
-    dataIndex: 'userAgent',
-    key: 'userAgent',
-    slotName: 'userAgent',
+    title: '设备信息',
+    dataIndex: 'device',
+    key: 'device',
+    slotName: 'device',
+  },
+  {
+    title: '提示信息',
+    dataIndex: 'errorMsg',
+    key: 'errorMsg',
+    slotName: 'errorMsg',
   },
 ]
 
@@ -67,9 +104,41 @@ const onPageChange = (page) => {
   getLoginLogList()
 }
 
-const getLoginLogList = () => {
-  // TODO: 调用接口获取登录日志数据
+const getLoginLogList = async () => {
+  try {
+    const params = {
+      current: current.value,
+      pageSize: pageSize.value,
+      userAccount: searchParams.value.userAccount,
+      ipAddress: searchParams.value.ipAddress,
+      startTime: searchParams.value.timeRange?.[0],
+      endTime: searchParams.value.timeRange?.[1],
+    }
+    const res = await LoginLogControllerService.getLoginLogList(params)
+    dataSource.value = res.data.records
+    // 处理返回的登录日志数据，将其赋值给 dataSource.value
+    total.value = res.data.total
+  } catch (error) {
+    console.error('获取登录日志失败:', error)
+  }
 }
 
-getLoginLogList()
+const handleSearch = () => {
+  current.value = 1
+  getLoginLogList()
+}
+
+const handleReset = () => {
+  searchParams.value = {
+    userAccount: '',
+    ipAddress: '',
+    timeRange: null,
+  }
+  current.value = 1
+  getLoginLogList()
+}
+
+onMounted(() => {
+  getLoginLogList()
+})
 </script>

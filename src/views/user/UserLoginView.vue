@@ -22,9 +22,9 @@ import router from '@/router';
 import { reactive, ref } from 'vue';
 import { UserControllerService } from '@/generated';
 import { Notification } from '@arco-design/web-vue';
-const codeImg = ref("http://127.0.0.1:5210/api/user/captcha?t=")
+const codeImg = ref("/api/user/captcha?t=")
 const changeImg = ()=>{
-  codeImg.value = "http://127.0.0.1:5210/api/user/captcha?t="+new Date()
+  codeImg.value = "/api/user/captcha?t="+new Date()
 }
 const form = reactive({
   name: '',

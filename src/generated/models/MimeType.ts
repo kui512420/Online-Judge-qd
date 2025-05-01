@@ -9,7 +9,7 @@ export type MimeType = {
     charset?: string;
     wildcardType?: boolean;
     wildcardSubtype?: boolean;
-    concrete?: boolean;
     subtypeSuffix?: string;
+    concrete?: boolean;
 };
 
