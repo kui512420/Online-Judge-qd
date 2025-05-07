@@ -3,11 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type RateLimit = {
-    tokensRemaining?: number;
-    tokensLimit?: number;
-    requestsReset?: string;
-    tokensReset?: string;
-    requestsLimit?: number;
     requestsRemaining?: number;
+    requestsLimit?: number;
+    requestsReset?: string;
+    tokensLimit?: number;
+    tokensRemaining?: number;
+    tokensReset?: string;
 };
 

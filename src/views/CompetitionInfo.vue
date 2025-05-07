@@ -9,13 +9,17 @@
     </a-breadcrumb>
 
     <a-card>
-      <div>
-        <h3>{{ comDetail?.name ?? '加载中...' }}</h3>
-        <p>
-          {{ comDetail?.description ?? '加载中...' }}
-        </p>
-        <p>开赛时间：{{ comDetail?.startTime ?? '加载中...' }}</p>
-        <p>结束时间：{{ comDetail?.endTime ?? '加载中...' }}</p>
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <div>
+          <h3>{{ comDetail?.name ?? '加载中...' }}</h3>
+          <p>
+            {{ comDetail?.description ?? '加载中...' }}
+          </p>
+          <p>开赛时间：{{ comDetail?.startTime ?? '加载中...' }}</p>
+          <p>结束时间：{{ comDetail?.endTime ?? '加载中...' }}</p>
+        </div>
+
+        <div><a-button>挑战</a-button></div>
       </div>
     </a-card>
     <div>
@@ -23,15 +27,9 @@
         <a-tab-pane key="1" title="题目列表">
           <template #title>题目列表</template>
           <div class="question-list-container">
-            <a-spin :loading="loading">
-              <a-table
-                :data="questionList"
-                :bordered="false"
-                :pagination="pagination"
-                @page-change="onPageChange"
-              >
+            <a-spin :loading="loading" style="width: 100%">
+              <a-table :data="questionList" :bordered="false" :pagination="false">
                 <template #columns>
-                  <a-table-column title="题目ID" data-index="id" :width="80" />
                   <a-table-column title="题目名称" data-index="title">
                     <template #cell="{ record }">
                       <a @click="goToQuestion(record.id)">{{ record.title }}</a>
@@ -51,9 +49,6 @@
                 </template>
               </a-table>
             </a-spin>
-            <div v-if="questionList.length === 0 && !loading" class="empty-container">
-              <a-empty description="暂无题目数据" />
-            </div>
           </div>
         </a-tab-pane>
         <a-tab-pane key="2" title="排行榜">
@@ -98,25 +93,19 @@ const pagination = reactive<PaginationProps>({
 
 // 获取竞赛题目列表
 const fetchQuestionList = async (page = 1) => {
-  if (!comDetail.value?.questionIds?.length) {
-    questionList.value = []
-    pagination.total = 0
-    return
-  }
-
   loading.value = true
   try {
-    // 创建查询参数，使用竞赛中的题目ID列表
-    const params = {
-      pageNow: page,
-      pageSize: pagination.pageSize,
-      findType: 3, // 按ID列表查询
-      ids: comDetail.value.questionIds,
-    }
+    // 直接通过竞赛ID获取题目列表
+    const res = await CompetitionControllerService.getCompetitionQuestions(comID.value)
 
-    const res = await QuestionControllerService.questions(params)
+    if (res.data && Array.isArray(res.data)) {
+      // 获取到题目列表后，设置分页信息
+      const startIndex = (page - 1) * pagination.pageSize
+      const endIndex = Math.min(startIndex + pagination.pageSize, res.data.length)
 
-    if (res.data && res.data.records) {
+      questionList.value = res.data.slice(startIndex, endIndex)
+      pagination.total = res.data.length
+    } else if (res.data && res.data.records) {
       questionList.value = res.data.records
       pagination.total = res.data.total || 0
     }

@@ -5,6 +5,7 @@
 import type { BaseResponsePageQuestionSubmit } from '../models/BaseResponsePageQuestionSubmit';
 import type { BaseResponseString } from '../models/BaseResponseString';
 import type { SubmitListRequest } from '../models/SubmitListRequest';
+import type { SubmitRankRequest } from '../models/SubmitRankRequest';
 import type { SubmitRequest } from '../models/SubmitRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -26,6 +27,21 @@ export class QuestionSubmitControllerService {
             headers: {
                 'Accesstoken': accesstoken,
             },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param requestBody
+     * @returns BaseResponsePageQuestionSubmit OK
+     * @throws ApiError
+     */
+    public static submitQuestionRankList(
+        requestBody: SubmitRankRequest,
+    ): CancelablePromise<BaseResponsePageQuestionSubmit> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/submit/rank',
             body: requestBody,
             mediaType: 'application/json',
         });

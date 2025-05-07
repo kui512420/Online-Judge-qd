@@ -7,25 +7,27 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class FilleControllerService {
     /**
+     * 上传文件
+     * 支持文件上传，返回 JSON 格式响应
      * @param accesstoken
-     * @param requestBody
-     * @returns any OK
+     * @param formData
+     * @returns any 文件上传成功
      * @throws ApiError
      */
     public static uploadFile(
         accesstoken?: string,
-        requestBody?: {
+        formData?: {
             file: Blob;
         },
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/file/upload',
+            url: '/api/file/file/upload',
             headers: {
                 'Accesstoken': accesstoken,
             },
-            body: requestBody,
-            mediaType: 'application/json',
+            formData: formData,
+            mediaType: 'multipart/form-data',
         });
     }
     /**

@@ -7,13 +7,7 @@
         </template>
       </a-button>
     </a-affix>
-    <a-layout style="min-height: 100vh;">
-      <a-layout-header class="header">
-        <a-space>
-          <img src="../assets/logo.png" alt="">
-          <div><b>KUIKUI OJ平台 | {{ title }}</b></div>
-        </a-space>
-      </a-layout-header>
+    <a-layout style="min-height: 100vh">
       <a-layout-content class="content">
         <template v-if="route.path == '/user/login'">
           <UserLoginView></UserLoginView>
@@ -22,18 +16,20 @@
           <UseRegisterView></UseRegisterView>
         </template>
       </a-layout-content>
-      <a-layout-footer class="footer"><a href="https://kuikui.space" target="_blank">猿分享 by 魁魁</a></a-layout-footer>
+      <a-layout-footer class="footer"
+        ><a href="https://kuikui.space" target="_blank">猿分享 by 魁魁</a></a-layout-footer
+      >
     </a-layout>
   </div>
 </template>
 
-<script setup lang='ts'>
+<script setup lang="ts">
 import UserLoginView from '@/views/user/UserLoginView.vue'
 import UseRegisterView from '@/views/user/UserRegisterView.vue'
 import { IconArrowLeft } from '@arco-design/web-vue/es/icon'
-import { useRoute } from 'vue-router';
-import router from '@/router/index';
-import { computed } from 'vue';
+import { useRoute } from 'vue-router'
+import router from '@/router/index'
+import { computed } from 'vue'
 const route = useRoute()
 const goIndexPage = () => {
   router.push('/')
@@ -52,7 +48,6 @@ const title = computed(() => {
 .header img {
   width: 60px;
   height: 60px;
-
 }
 
 .Wapper {

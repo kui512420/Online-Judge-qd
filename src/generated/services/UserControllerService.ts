@@ -8,6 +8,7 @@ import type { BaseResponseMapObjectObject } from '../models/BaseResponseMapObjec
 import type { BaseResponseMapStringString } from '../models/BaseResponseMapStringString';
 import type { BaseResponsePageUser } from '../models/BaseResponsePageUser';
 import type { BaseResponseString } from '../models/BaseResponseString';
+import type { BaseResponseUserCommitRequest } from '../models/BaseResponseUserCommitRequest';
 import type { EmailRequest } from '../models/EmailRequest';
 import type { UserInfoRequest } from '../models/UserInfoRequest';
 import type { UserListRequest } from '../models/UserListRequest';
@@ -143,6 +144,22 @@ export class UserControllerService {
         });
     }
     /**
+     * @param accesstoken
+     * @returns BaseResponseUserCommitRequest OK
+     * @throws ApiError
+     */
+    public static questionCommitInfo(
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponseUserCommitRequest> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/user/questionCommitInfo',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+        });
+    }
+    /**
      * @param requestBody
      * @returns BaseResponseMapStringString OK
      * @throws ApiError
@@ -183,18 +200,34 @@ export class UserControllerService {
         });
     }
     /**
-     * @param refreshToken
-     * @returns BaseResponseMapObjectObject OK
+     * @param accessToken
+     * @returns BaseResponseBoolean OK
+     * @throws ApiError
+     */
+    public static outLogin(
+        accessToken: string,
+    ): CancelablePromise<BaseResponseBoolean> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/user/OutLogin',
+            query: {
+                'accessToken': accessToken,
+            },
+        });
+    }
+    /**
+     * @param accesstoken
+     * @returns BaseResponseString OK
      * @throws ApiError
      */
     public static refreshToken(
-        refreshToken?: string,
-    ): CancelablePromise<BaseResponseMapObjectObject> {
+        accesstoken: string,
+    ): CancelablePromise<BaseResponseString> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/user/refreshToken',
             headers: {
-                'RefreshToken': refreshToken,
+                'Accesstoken': accesstoken,
             },
         });
     }

@@ -112,6 +112,7 @@ const sendMessage = async () => {
     const response = await fetch('http://localhost/api/chat', {
       method: 'POST',
       headers: {
+        Accesstoken: localStorage.getItem('AccessToken') || '',
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
       },

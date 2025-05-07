@@ -9,6 +9,7 @@
               <a-option value="solved">解题数量</a-option>
               <a-option value="rate">通过率</a-option>
             </a-select>
+            <span style="font-size: 12px; color: #666">数据每30分钟更新</span>
           </a-space>
         </div>
       </template>

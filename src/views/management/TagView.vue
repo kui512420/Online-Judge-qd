@@ -48,7 +48,9 @@
           {{ formatTime(record.updateTime) }}
         </template>
         <template #operation="{ record }">
-          <a-button type="text" status="danger" @click="handleDelete(record.id)">删除</a-button>
+          <a-popconfirm content="确定删除该标签？" @ok="handleDelete(record.id)">
+            <a-button type="text" status="danger">删除</a-button>
+          </a-popconfirm>
         </template>
       </a-table>
     </a-space>

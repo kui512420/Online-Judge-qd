@@ -3,13 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Usage = {
-    nativeUsage?: Record<string, any>;
-    promptTokens?: number;
-    totalTokens?: number;
     completionTokens?: number;
     /**
      * @deprecated
      */
     generationTokens?: number;
+    promptTokens?: number;
+    totalTokens?: number;
+    nativeUsage?: Record<string, any>;
 };
 

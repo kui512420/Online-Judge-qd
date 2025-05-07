@@ -15,7 +15,7 @@
             分享
           </div>
           <a-button type="primary" shape="round" @click="goToCompetitionInfo(props.competition.id)"
-            >立即报名</a-button
+            >查看详情</a-button
           >
         </div>
       </div>

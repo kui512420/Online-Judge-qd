@@ -2,7 +2,12 @@
   <management-layouts>
     <a-card title="竞赛管理" class="competition-table">
       <div class="table-header">
-        <a-input-search v-model="searchValue" placeholder="搜索竞赛名称" style="width: 300px" @search="fetchCompetitions" />
+        <a-input-search
+          v-model="searchValue"
+          placeholder="搜索竞赛名称"
+          style="width: 300px"
+          @search="fetchCompetitions"
+        />
         <a-button type="primary" @click="showModal('add')"> <icon-plus /> 新建竞赛 </a-button>
       </div>
 
@@ -54,7 +59,7 @@
               {{ item.label }}
             </a-option>
             <template #empty>
-              <div style="text-align: center; padding: 10px;">
+              <div style="text-align: center; padding: 10px">
                 {{ questionLoading ? '加载中...' : '暂无题目数据' }}
               </div>
             </template>
@@ -85,14 +90,14 @@ const questionLoading = ref(false)
 const questionOptions = ref<{ label: string; value: number }[]>([])
 
 interface FormData {
-  id?: number;
-  name: string;
-  startTime: string | Date;
-  endTime: string | Date;
-  description: string;
-  questionIds: number[];
-  scores?: number[];
-  status?: number;
+  id?: number
+  name: string
+  startTime: string | Date
+  endTime: string | Date
+  description: string
+  questionIds: number[]
+  scores?: number[]
+  status?: number
 }
 
 const formData = reactive<FormData>({
@@ -136,9 +141,9 @@ const competitionList = ref<CompetitionVO[]>([])
 
 // 获取当前用户的访问令牌
 const getAccessToken = (): string | undefined => {
-  const token = localStorage.getItem('AccessToken') || sessionStorage.getItem('AccessToken');
-  return token || undefined; // Return undefined instead of null to match expected type
-};
+  const token = localStorage.getItem('AccessToken') || sessionStorage.getItem('AccessToken')
+  return token || undefined // Return undefined instead of null to match expected type
+}
 
 onMounted(() => {
   fetchCompetitions()
@@ -152,7 +157,7 @@ const fetchCompetitions = async () => {
       pageSize: pagination.pageSize,
       name: searchValue.value || undefined,
     }
-    
+
     const res = await CompetitionControllerService.listCompetitions(params)
     if (res.data) {
       competitionList.value = res.data.records || []
@@ -168,10 +173,10 @@ const fetchCompetitions = async () => {
 const showModal = async (type: string, record?: CompetitionVO) => {
   modalType.value = type
   modalVisible.value = true
-  
+
   // 加载题目列表
   await fetchQuestionList()
-  
+
   if (type === 'add') {
     resetForm()
   } else if (type === 'edit' && record) {
@@ -194,13 +199,13 @@ const fetchQuestionList = async () => {
       findType: 0,
       pageSize: 100, // 假设最多获取100题
     }
-    
+
     const res = await QuestionControllerService.questions(params)
-    
+
     if (res.data && res.data.records) {
       questionOptions.value = res.data.records.map((question: QuestionListVo) => ({
         label: question.title || '未命名题目',
-        value: question.id || 0
+        value: question.id || 0,
       }))
     }
   } catch (error) {
@@ -214,113 +219,111 @@ const fetchQuestionList = async () => {
 const handleSubmit = async () => {
   try {
     // 确保日期格式正确
-    let startTimeFormatted: string | undefined = undefined;
-    let endTimeFormatted: string | undefined = undefined;
-    
+    let startTimeFormatted: string | undefined = undefined
+    let endTimeFormatted: string | undefined = undefined
+
     // 检查日期格式，确保是字符串
     if (formData.startTime) {
       if (typeof formData.startTime === 'object' && formData.startTime instanceof Date) {
-        startTimeFormatted = formData.startTime.toISOString();
+        startTimeFormatted = formData.startTime.toISOString()
       } else if (typeof formData.startTime === 'string') {
         // 确保是有效的日期字符串
-        const startDate = new Date(formData.startTime);
+        const startDate = new Date(formData.startTime)
         if (!isNaN(startDate.getTime())) {
-          startTimeFormatted = startDate.toISOString();
+          startTimeFormatted = startDate.toISOString()
         }
       }
     }
-    
+
     if (formData.endTime) {
       if (typeof formData.endTime === 'object' && formData.endTime instanceof Date) {
-        endTimeFormatted = formData.endTime.toISOString();
+        endTimeFormatted = formData.endTime.toISOString()
       } else if (typeof formData.endTime === 'string') {
         // 确保是有效的日期字符串
-        const endDate = new Date(formData.endTime);
+        const endDate = new Date(formData.endTime)
         if (!isNaN(endDate.getTime())) {
-          endTimeFormatted = endDate.toISOString();
+          endTimeFormatted = endDate.toISOString()
         }
       }
     }
-    
+
     // 验证必填字段
     if (!formData.name || !startTimeFormatted || !endTimeFormatted) {
-      Message.warning('请填写竞赛名称、开始时间和结束时间');
-      return;
+      Message.warning('请填写竞赛名称、开始时间和结束时间')
+      return
     }
-    
+
     // 获取访问令牌
-    const accessToken = getAccessToken();
-    
+    const accessToken = getAccessToken()
+
     if (!accessToken) {
-      Message.error('未登录或登录已过期，请重新登录');
-      return;
+      Message.error('未登录或登录已过期，请重新登录')
+      return
     }
-    
+
     const request: CompetitionAddRequest = {
       name: formData.name,
       startTime: startTimeFormatted,
       endTime: endTimeFormatted,
       description: formData.description,
       questionIds: formData.questionIds.length > 0 ? formData.questionIds : undefined,
-      scores: formData.questionIds.length > 0 ? formData.questionIds.map(() => 100) : undefined
+      scores: formData.questionIds.length > 0 ? formData.questionIds.map(() => 100) : undefined,
     }
-    
+
     // 调试日志
-    console.log('竞赛请求数据:', JSON.stringify(request));
-    
+    console.log('竞赛请求数据:', JSON.stringify(request))
+
     if (modalType.value === 'add') {
       // 使用一个变量存储完成状态，防止重复提交
-      let isSubmitted = false;
+      let isSubmitted = false
 
       try {
         // 首先尝试使用生成的服务
-        const res = await CompetitionControllerService.addCompetition(request, accessToken);
-        isSubmitted = true;
-        
-          Message.success('添加竞赛成功');
-          resetForm();
-          fetchCompetitions();
-          modalVisible.value = false;
+        const res = await CompetitionControllerService.addCompetition(request, accessToken)
+        isSubmitted = true
+
+        Message.success('添加竞赛成功')
+        resetForm()
+        fetchCompetitions()
+        modalVisible.value = false
       } catch (error: any) {
-        console.error('添加竞赛请求错误:', error);
+        console.error('添加竞赛请求错误:', error)
         // 如果前面的请求失败，尝试直接使用axios发送请求
         if (!isSubmitted) {
           try {
             // 直接使用Axios发送请求作为备选方案
-            const directRes = await axios.post('/api/competition/add', request, {
-              headers: {
-                'Content-Type': 'application/json',
-                'AccessToken': accessToken
-              }
-            });
-            
-            console.log('直接请求响应:', directRes);
-            
+            const directRes = await CompetitionControllerService.addCompetition(
+              request,
+              accessToken,
+            )
+
+            console.log('直接请求响应:', directRes)
+
             if (directRes.data.code === 0) {
-              Message.success('添加竞赛成功');
-              resetForm();
-              fetchCompetitions();
-              modalVisible.value = false;
-              return;
+              Message.success('添加竞赛成功')
+              resetForm()
+              fetchCompetitions()
+              modalVisible.value = false
+              return
             }
-            
-            Message.error(directRes.data.message || '添加竞赛失败');
+
+            Message.error(directRes.data.message || '添加竞赛失败')
           } catch (axiosError) {
-            console.error('备选请求失败:', axiosError);
-            Message.error('添加竞赛失败，请检查网络连接');
+            console.error('备选请求失败:', axiosError)
+            Message.error('添加竞赛失败，请检查网络连接')
           }
         }
       }
     } else {
       // 这里需要编辑竞赛的接口，当前服务中未提供
       // 假设有一个 updateCompetition 方法
-      Message.success('编辑竞赛成功');
-      fetchCompetitions();
-      modalVisible.value = false;
+      Message.success('编辑竞赛成功')
+      fetchCompetitions()
+      modalVisible.value = false
     }
   } catch (error) {
-    console.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败', error);
-    Message.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败');
+    console.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败', error)
+    Message.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败')
   }
 }
 
@@ -341,18 +344,18 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = async (id: number) => {
   try {
-    const accessToken = getAccessToken();
+    const accessToken = getAccessToken()
     if (!accessToken) {
-      Message.error('未登录或登录已过期，请重新登录');
-      return;
+      Message.error('未登录或登录已过期，请重新登录')
+      return
     }
-    
-    const res = await CompetitionControllerService.deleteCompetition(id, accessToken);
-      Message.success('删除竞赛成功');
-      fetchCompetitions();
+
+    const res = await CompetitionControllerService.deleteCompetition(id, accessToken)
+    Message.success('删除竞赛成功')
+    fetchCompetitions()
   } catch (error) {
-    console.error('删除竞赛失败', error);
-    Message.error('删除竞赛失败');
+    console.error('删除竞赛失败', error)
+    Message.error('删除竞赛失败')
   }
 }
 </script>

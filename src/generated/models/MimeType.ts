@@ -7,9 +7,9 @@ export type MimeType = {
     subtype?: string;
     parameters?: Record<string, string>;
     charset?: string;
-    wildcardType?: boolean;
     wildcardSubtype?: boolean;
-    subtypeSuffix?: string;
+    wildcardType?: boolean;
     concrete?: boolean;
+    subtypeSuffix?: string;
 };
 

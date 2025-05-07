@@ -4,7 +4,8 @@
 /* eslint-disable */
 import type { BaseResponseBoolean } from '../models/BaseResponseBoolean';
 import type { BaseResponseCompetitionVO } from '../models/BaseResponseCompetitionVO';
-import type { BaseResponseInteger } from '../models/BaseResponseInteger';
+import type { BaseResponseListQuestionListVo } from '../models/BaseResponseListQuestionListVo';
+import type { BaseResponseLong } from '../models/BaseResponseLong';
 import type { BaseResponsePageCompetitionVO } from '../models/BaseResponsePageCompetitionVO';
 import type { CompetitionAddRequest } from '../models/CompetitionAddRequest';
 import type { CompetitionRequest } from '../models/CompetitionRequest';
@@ -29,22 +30,38 @@ export class CompetitionControllerService {
     }
     /**
      * @param requestBody
-     * @param accessToken
-     * @returns BaseResponseInteger OK
+     * @param accesstoken
+     * @returns BaseResponseLong OK
      * @throws ApiError
      */
     public static addCompetition(
         requestBody: CompetitionAddRequest,
-        accessToken?: string,
-    ): CancelablePromise<BaseResponseInteger> {
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponseLong> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/competition/add',
             headers: {
-                'AccessToken': accessToken,
+                'Accesstoken': accesstoken,
             },
             body: requestBody,
             mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param id
+     * @returns BaseResponseListQuestionListVo OK
+     * @throws ApiError
+     */
+    public static getCompetitionQuestions(
+        id: number,
+    ): CancelablePromise<BaseResponseListQuestionListVo> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/competition/questions/{id}',
+            path: {
+                'id': id,
+            },
         });
     }
     /**

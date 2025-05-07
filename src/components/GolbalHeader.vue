@@ -1,45 +1,40 @@
 <template>
-
-  <a-row class="golbalHeader" align="center" :wrap=false>
+  <a-row class="golbalHeader" align="center" :wrap="false">
     <a-col flex="auto">
       <a-menu mode="horizontal" :selected-keys="[route.path]" @menu-item-click="toPathPage">
         <a-menu-item key="" :style="{ padding: 0, marginRight: '38px' }" @click="router.push('/')">
-          <div class="logo-warpper" style="cursor: pointer;">
-            <img src="../assets/logo.png" alt="">
+          <div class="logo-warpper" style="cursor: pointer">
+            <img src="../assets/logo.png" alt="" />
             <div class="title">KUIKUI OJ</div>
           </div>
         </a-menu-item>
-        <a-menu-item v-for="(item) in showMenus" :key=item.path>
+        <a-menu-item v-for="item in showMenus" :key="item.path">
           {{ item.name }}
         </a-menu-item>
-
       </a-menu>
     </a-col>
     <div class="header-right">
       <ThemeSwitch></ThemeSwitch>
-      <MyHeader style="margin-left: 10px;"></MyHeader>
+      <MyHeader style="margin: 0 20px"></MyHeader>
     </div>
   </a-row>
-
 </template>
 
-<script setup lang='ts'>
-import routes from '@/router/routes';
-import router from '@/router/index';
+<script setup lang="ts">
+import routes from '@/router/routes'
+import router from '@/router/index'
 import { useUserStore } from '@/stores/userStore'
-import cheakAccess from '@/access/cheakAccess';
-import ThemeSwitch from './ThemeSwitch.vue';
-import MyHeader from './MyHeader.vue';
-import { computed } from 'vue';
+import cheakAccess from '@/access/cheakAccess'
+import ThemeSwitch from './ThemeSwitch.vue'
+import MyHeader from './MyHeader.vue'
+import { computed } from 'vue'
 
 const useStore = useUserStore()
-import { useRoute } from 'vue-router';
-const route = useRoute();
-
+import { useRoute } from 'vue-router'
+const route = useRoute()
 
 const showMenus = computed(() => {
   return routes.filter((item) => {
-
     if (!cheakAccess(useStore.user, item?.meta?.access)) {
       return false
     }

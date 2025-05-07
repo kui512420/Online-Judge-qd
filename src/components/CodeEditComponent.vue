@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import * as monaco from 'monaco-editor'
 import { useRoute } from 'vue-router'
 import QuestionSubmitRecord from './QuestionSubmitRecord.vue'
@@ -178,9 +178,9 @@ const initEditor = () => {
     scrollBeyondLastLine: false,
   })
 }
-setTimeout(() => {
-  console.log(editor.getValue())
-}, 5000)
+const refTimeout = setInterval(() => {
+  getData(3)
+}, 3000)
 // 切换语言
 const changeLanguage = () => {
   if (!editor) return
@@ -192,6 +192,9 @@ const changeLanguage = () => {
 onMounted(() => {
   fetchData()
   initEditor()
+})
+onUnmounted(() => {
+  clearTimeout(refTimeout)
 })
 const submit = () => {
   const requestBody = {

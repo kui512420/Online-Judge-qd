@@ -36,19 +36,19 @@ export class QuestionControllerService {
     }
     /**
      * @param requestBody
-     * @param accessToken
+     * @param accesstoken
      * @returns BaseResponseInteger OK
      * @throws ApiError
      */
     public static question(
         requestBody: QuestionPostRequest,
-        accessToken?: string,
+        accesstoken?: string,
     ): CancelablePromise<BaseResponseInteger> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/question/question',
             headers: {
-                'AccessToken': accessToken,
+                'Accesstoken': accesstoken,
             },
             body: requestBody,
             mediaType: 'application/json',

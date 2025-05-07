@@ -1,87 +1,106 @@
 <template>
   <div class="wapper">
     <div class="content-left">
-      <a-input placeholder="搜索题目编号或标题" allow-clear v-model="searchData" />
-      <a-card style="margin: 20px 0">
-        <div class="filter">
-          <div style="padding: 10px">排序</div>
-          <div
-            :class="{ 'filter-hover': true, 'filter-selected': isFilter1Selected }"
-            class="filter-hover"
-            @click="selectFilter(1)"
-          >
-            <icon-arrow-rise />挑战人数
+      <a-spin :loading="loading" tip="加载中...">
+        <a-input placeholder="搜索题目编号或标题" allow-clear v-model="searchData" />
+        <a-card style="margin: 20px 0">
+          <div class="filter">
+            <div style="padding: 10px">排序</div>
+            <div
+              :class="{ 'filter-hover': true, 'filter-selected': isFilter1Selected }"
+              class="filter-hover"
+              @click="selectFilter(1)"
+            >
+              <icon-arrow-rise />挑战人数
+            </div>
+            <div
+              :class="{ 'filter-hover': true, 'filter-selected': isFilter2Selected }"
+              class="filter-hover"
+              @click="selectFilter(2)"
+            >
+              <icon-arrow-fall />挑战人数
+            </div>
+            <div class="filter-reset-hover" @click="reset">重置</div>
           </div>
-          <div
-            :class="{ 'filter-hover': true, 'filter-selected': isFilter2Selected }"
-            class="filter-hover"
-            @click="selectFilter(2)"
-          >
-            <icon-arrow-fall />挑战人数
-          </div>
-          <div class="filter-reset-hover" @click="reset">重置</div>
-        </div>
-      </a-card>
-      <a-table :data="data" :pagination="false" row-key="id">
-        <template #columns>
-          <a-table-column title="题目ID" data-index="id" key="id" v-if="!isMobile"></a-table-column>
-          <a-table-column title="题目" data-index="title" :width="100">
-            <template #cell="{ record }">
-              <div class="ellipsis-text">{{ record.title }}</div>
-            </template>
-          </a-table-column>
-          <a-table-column title="标签" data-index="tags">
-            <template #cell="{ record }">
-              <a-tag
-                :color="getRandomColor()"
-                v-for="(item, index) in JSON.parse(record.tags)"
-                :key="index"
-                bordered
-                >{{ item }}</a-tag
-              >
-            </template>
-          </a-table-column>
-          <a-table-column title="通过率">
-            <template #cell="{ record }">
-              {{ ((record.acceptedNum / record.submitNum) * 100).toFixed(2) }}%
-            </template>
-          </a-table-column>
-          <a-table-column title="挑战人数" data-index="submitNum"></a-table-column>
-          <a-table-column title="操作">
-            <template #cell="{ record }">
-              <a-button @click="handleDo(record.id)">开始挑战</a-button>
-            </template>
-          </a-table-column>
-        </template>
-      </a-table>
-      <a-pagination
-        style="justify-content: center; margin-top: 10px"
-        v-model:page-size="pageSize"
-        :page-size-options="pageSizes"
-        @change="change"
-        :total="pagination.total"
-        show-total
-        show-jumper
-        show-page-size
-      />
+        </a-card>
+        <a-table :data="data" :pagination="false" row-key="id">
+          <template #columns>
+            <a-table-column
+              title="题目ID"
+              data-index="id"
+              key="id"
+              v-if="!isMobile"
+            ></a-table-column>
+            <a-table-column title="题目" data-index="title" :width="100">
+              <template #cell="{ record }">
+                <div class="ellipsis-text">{{ record.title }}</div>
+              </template>
+            </a-table-column>
+            <a-table-column title="标签" data-index="tags">
+              <template #cell="{ record }">
+                <a-tag
+                  :color="getRandomColor()"
+                  v-for="(item, index) in JSON.parse(record.tags)"
+                  :key="index"
+                  bordered
+                  >{{ item }}</a-tag
+                >
+              </template>
+            </a-table-column>
+            <a-table-column title="通过率">
+              <template #cell="{ record }">
+                {{
+                  record.submitNum ? ((record.acceptedNum / record.submitNum) * 100).toFixed(0) : 0
+                }}%
+              </template>
+            </a-table-column>
+            <a-table-column title="挑战人数" data-index="submitNum"></a-table-column>
+            <a-table-column title="操作">
+              <template #cell="{ record }">
+                <a-button @click="handleDo(record.id)">开始挑战</a-button>
+              </template>
+            </a-table-column>
+          </template>
+        </a-table>
+        <a-pagination
+          style="justify-content: center; margin-top: 10px"
+          v-model:page-size="pageSize"
+          :page-size-options="pageSizes"
+          @change="change"
+          :total="pagination.total"
+          show-total
+          show-jumper
+          show-page-size
+        />
+      </a-spin>
     </div>
     <div class="content-right">
       <div class="card-list">
-        <a-card :style="{ width: '360px' }" title="平台提交统计" class="hover-commit">
+        <a-card :style="{ width: '360px' }" title="您的提交统计" class="hover-commit">
           <div class="commit">
             <div>
               <div><img width="30px" src="../assets/icon/提交成功.png" alt="" /></div>
-              <div style="padding: 5px; font-size: 20px">1</div>
+              <div style="padding: 5px; font-size: 20px">{{ userCommitInfo.commitCount }}</div>
               <div>总提交</div>
             </div>
             <div>
               <div><img width="30px" src="../assets/icon/奖杯.png" alt="" /></div>
-              <div style="padding: 5px; font-size: 20px">1</div>
+              <div style="padding: 5px; font-size: 20px">
+                {{ userCommitInfo.commitPassCount }}
+              </div>
               <div>通过数</div>
             </div>
             <div>
               <div><img width="30px" src="../assets/icon/折线图.png" alt="" /></div>
-              <div style="padding: 5px; font-size: 20px">1</div>
+              <div style="padding: 5px; font-size: 20px">
+                {{
+                  userCommitInfo.commitCount && userCommitInfo.commitCount > 0
+                    ? ((userCommitInfo.commitPassCount / userCommitInfo.commitCount) * 100).toFixed(
+                        0,
+                      )
+                    : 0
+                }}%
+              </div>
               <div>通过率</div>
             </div>
           </div>
@@ -113,8 +132,9 @@
 <script setup lang="ts">
 import router from '@/router'
 import { reactive, ref, watch } from 'vue'
-import { QuestionControllerService, TagControllerService } from '@/generated'
+import { QuestionControllerService, TagControllerService, UserControllerService } from '@/generated'
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon'
+import { Message } from '@arco-design/web-vue'
 
 // 封装 Question 类型
 interface QuestionListVo {
@@ -139,7 +159,7 @@ const isFilter1Selected = ref(false)
 // 用于跟踪第二个 div 是否被选中
 const isFilter2Selected = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
-
+const userCommitInfo = ref({})
 window.addEventListener('resize', () => {
   isMobile.value = window.innerWidth <= 768
 })
@@ -194,7 +214,9 @@ TagControllerService.list({ type: 0, count: 100, page: 1 }).then((res) => {
     tags.value.push(item.name)
   })
 })
-
+UserControllerService.questionCommitInfo().then((res) => {
+  userCommitInfo.value = res.data
+})
 // 处理标签点击事件的函数
 const handleTagClick = (tag: string) => {
   const index = selectedTags.value.indexOf(tag)
@@ -247,9 +269,22 @@ const reset = () => {
 
 getList()
 
-// 模拟编辑操作
+// 加载状态变量
+const loading = ref(false)
+
+// 跳转到题目页面
 const handleDo = (id: number) => {
-  router.push('/questionView/' + id)
+  loading.value = true
+  // 使用Message组件提示用户正在加载
+  Message.info('正在加载题目...')
+  // 跳转到题目页面，并设置一个较长的加载时间以确保用户能看到加载状态
+  setTimeout(() => {
+    router.push('/questionView/' + id)
+    // 在路由跳转后延迟一段时间再关闭加载状态，确保用户能看到加载效果
+    setTimeout(() => {
+      loading.value = false
+    }, 800)
+  }, 300)
 }
 
 const getRandomColor = () => {
@@ -363,6 +398,10 @@ watch(searchData, () => {
 
 .content-left {
   width: 50%;
+}
+
+.content-left :deep(.arco-spin) {
+  display: block;
 }
 
 .content-right {

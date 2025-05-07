@@ -9,8 +9,12 @@
           <span :class="['status', getStatusClass(item.status)]">
             状态：{{ getStatusText(item.status) }}
           </span>
-          <span class="memory" v-if="item.memory">内存：{{ item.memory }}KB</span>
-          <span class="time-cost" v-if="item.time">耗时：{{ item.time }}MS</span>
+          <span class="memory" v-if="item.judgeInfo && isValidJudgeInfo(item.judgeInfo)">
+            耗时：{{ getMaxTime(item.judgeInfo) }}ms
+          </span>
+          <span class="memory" v-if="item.judgeInfo && isValidJudgeInfo(item.judgeInfo)">
+            {{ getPassedCount(item.judgeInfo) + '/' + getJudgeInfoLength(item.judgeInfo) }}
+          </span>
         </div>
       </a-card>
     </div>
@@ -18,7 +22,26 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 const props = defineProps(['list'])
+
+const isValidJudgeInfo = (judgeInfo: string): boolean => {
+  try {
+    const info = JSON.parse(judgeInfo)
+    return Array.isArray(info) && info.length > 0
+  } catch (error) {
+    return false
+  }
+}
+
+const getJudgeInfoLength = (judgeInfo: string): number => {
+  try {
+    const info = JSON.parse(judgeInfo)
+    return Array.isArray(info) ? info.length : 0
+  } catch (error) {
+    return 0
+  }
+}
 
 const getStatusClass = (status: number) => {
   switch (status) {
@@ -42,11 +65,29 @@ const getStatusText = (status: number) => {
     case 1:
       return '判题中'
     case 2:
-      return '成功'
+      return '通过'
     case 3:
-      return '失败'
+      return '未通过'
     default:
       return '未知'
+  }
+}
+
+const getMaxTime = (judgeInfo: string) => {
+  try {
+    const info = JSON.parse(judgeInfo)
+    return Math.max(...info.map((item: any) => item.time))
+  } catch (error) {
+    return 0
+  }
+}
+
+const getPassedCount = (judgeInfo: string) => {
+  try {
+    const info = JSON.parse(judgeInfo)
+    return info.filter((item: any) => item.passed === 1).length
+  } catch (error) {
+    return 0
   }
 }
 </script>

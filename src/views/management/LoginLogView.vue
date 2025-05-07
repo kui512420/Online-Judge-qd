@@ -43,8 +43,8 @@
         {{ record.device }}
       </template>
       <template #errorMsg="{ record }">
-        <a-tag :color="record.errorMsg ? 'red' : 'green'">
-          {{ record.errorMsg || '登录成功' }}
+        <a-tag :color="record.errorMsg == '登录成功' ? 'green' : 'red'">
+          {{ record.errorMsg }}
         </a-tag>
       </template>
     </a-table>

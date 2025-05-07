@@ -114,7 +114,7 @@
               :max="100"
             />
           </div>
-          <div>
+          <div style="margin: 20px 0">
             出题难度：
             <a-select
               v-model="questionDaf"
@@ -126,17 +126,14 @@
               <a-option>低</a-option>
             </a-select>
           </div>
-          <div>
-            出题类型：
-            <a-select
+          <div style="align-items: center">
+            出题描述：
+            <a-textarea
               v-model="questionType"
               :style="{ width: '320px' }"
-              placeholder="请选择题目类型"
-            >
-              <a-option>B+树</a-option>
-              <a-option>哈希算法</a-option>
-              <a-option>递归算法</a-option>
-            </a-select>
+              placeholder="请输入题目生成描述"
+              :auto-size="{ minRows: 2, maxRows: 5 }"
+            />
           </div>
         </a-modal>
       </a-spin>
@@ -271,7 +268,11 @@ const handleOk = () => {
         }
 
         Message.success('AI 生成题目成功')
-        AIvisible.value = false // 关闭模态框
+        AIvisible.value = false
+        // 重置模态框参数
+        questionCount.value = 10
+        questionDaf.value = undefined
+        questionDesc.value = ''
 
         // 打印调试信息
         console.log('AI生成数据已填充:', {

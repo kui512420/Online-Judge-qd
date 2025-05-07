@@ -129,7 +129,6 @@ import {
   QuestionSubmitControllerService,
   UserControllerService,
 } from '@/generated'
-import axios from 'axios'
 import { Message } from '@arco-design/web-vue'
 import router from '@/router'
 const rowSelection = reactive({
