@@ -4,10 +4,10 @@
 /* eslint-disable */
 export type RateLimit = {
     requestsRemaining?: number;
-    requestsLimit?: number;
-    requestsReset?: string;
-    tokensLimit?: number;
     tokensRemaining?: number;
+    requestsLimit?: number;
     tokensReset?: string;
+    tokensLimit?: number;
+    requestsReset?: string;
 };
 

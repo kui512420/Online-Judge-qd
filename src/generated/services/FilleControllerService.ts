@@ -31,6 +31,30 @@ export class FilleControllerService {
         });
     }
     /**
+     * 上传文件
+     * 支持文件上传，返回 JSON 格式响应
+     * @param accesstoken
+     * @param formData
+     * @returns any 文件上传成功
+     * @throws ApiError
+     */
+    public static uploadQuestionFile(
+        accesstoken?: string,
+        formData?: {
+            file: Blob;
+        },
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/file/file/upload/question',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+            formData: formData,
+            mediaType: 'multipart/form-data',
+        });
+    }
+    /**
      * @param filename
      * @returns string OK
      * @throws ApiError
@@ -41,6 +65,22 @@ export class FilleControllerService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/file/userheader/{filename}',
+            path: {
+                'filename': filename,
+            },
+        });
+    }
+    /**
+     * @param filename
+     * @returns string OK
+     * @throws ApiError
+     */
+    public static getQuestionContent(
+        filename: string,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/file/questionContent/{filename}',
             path: {
                 'filename': filename,
             },

@@ -26,7 +26,7 @@
         </a-menu-item>
         <a-menu-item key="4">
           <template #icon><icon-apps></icon-apps></template>
-          已结束中
+          已结束
         </a-menu-item>
       </a-menu>
       <div class="item">

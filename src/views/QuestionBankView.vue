@@ -80,13 +80,13 @@
           <div class="commit">
             <div>
               <div><img width="30px" src="../assets/icon/提交成功.png" alt="" /></div>
-              <div style="padding: 5px; font-size: 20px">{{ userCommitInfo.commitCount }}</div>
+              <div style="padding: 5px; font-size: 20px">{{ userCommitInfo.commitCount || 0 }}</div>
               <div>总提交</div>
             </div>
             <div>
               <div><img width="30px" src="../assets/icon/奖杯.png" alt="" /></div>
               <div style="padding: 5px; font-size: 20px">
-                {{ userCommitInfo.commitPassCount }}
+                {{ userCommitInfo.commitPassCount || 0 }}
               </div>
               <div>通过数</div>
             </div>
@@ -95,7 +95,7 @@
               <div style="padding: 5px; font-size: 20px">
                 {{
                   userCommitInfo.commitCount && userCommitInfo.commitCount > 0
-                    ? ((userCommitInfo.commitPassCount / userCommitInfo.commitCount) * 100).toFixed(
+                    ? ((userCommitInfo.commitPassCount || 0) / userCommitInfo.commitCount * 100).toFixed(
                         0,
                       )
                     : 0
@@ -132,17 +132,24 @@
 <script setup lang="ts">
 import router from '@/router'
 import { reactive, ref, watch } from 'vue'
-import { QuestionControllerService, TagControllerService, UserControllerService } from '@/generated'
+import { QuestionControllerService, TagControllerService, QuestionSubmitControllerService } from '@/generated'
 import { IconArrowFall, IconArrowRise } from '@arco-design/web-vue/es/icon'
 import { Message } from '@arco-design/web-vue'
 
 // 封装 Question 类型
 interface QuestionListVo {
   id: string
-  name: string
-  tags: string[]
-  completionRate: number
-  submitNum: number
+  title?: string
+  tags?: string
+  submitNum?: number
+  acceptedNum?: number
+}
+
+// 用户提交信息接口
+interface UserCommitInfo {
+  commitCount?: number
+  commitPassCount?: number
+  [key: string]: any
 }
 
 const pagination = reactive({
@@ -153,27 +160,26 @@ const pageSizes = ref([5, 10, 20, 30, 50])
 const searchData = ref('')
 const data = ref<QuestionListVo[] | undefined>(undefined)
 const total = ref(0)
-const selectedTags = ref([])
+const selectedTags = ref<string[]>([])
 // 用于跟踪第一个 div 是否被选中
 const isFilter1Selected = ref(false)
 // 用于跟踪第二个 div 是否被选中
 const isFilter2Selected = ref(false)
 const isMobile = ref(window.innerWidth <= 768)
-const userCommitInfo = ref({})
+const userCommitInfo = ref<UserCommitInfo>({})
 window.addEventListener('resize', () => {
   isMobile.value = window.innerWidth <= 768
 })
 
-const tags = ref([])
+const tags = ref<string[]>([])
 interface QuestionRequest {
-  type: number
-  sort?: number
-  page: number
-  size: number
+  questionName?: string
   id?: number
-  filter?: number
-  tags?: string
-  search?: string
+  findType: number
+  pageNow: number
+  pageSize: number
+  tags?: string[]
+  submitNumOrderType?: number
 }
 // 封装请求函数
 const fetchQuestions = (
@@ -183,24 +189,27 @@ const fetchQuestions = (
   size: number,
   id: number | undefined,
   filter: number | undefined,
-  tags: string | undefined,
+  tags: string[] | undefined,
   search: string | undefined,
 ) => {
   const requestBody: QuestionRequest = {
     questionName: search,
     id: id,
-    sort: sort,
     findType: findType,
     pageNow: page,
     pageSize: size,
-    tags: tags ? tags.split(',') : undefined,
+    tags: tags,
     submitNumOrderType: sort,
   }
 
   return QuestionControllerService.questions(requestBody).then((res) => {
-    data.value = res.data!.records
-    total.value = res.data!.total
-    pagination.total = res.data!.total
+    if (res.data && res.data.records) {
+      data.value = res.data.records as unknown as QuestionListVo[]
+    }
+    if (res.data && typeof res.data.total === 'number') {
+      total.value = res.data.total
+      pagination.total = res.data.total
+    }
   })
 }
 
@@ -209,14 +218,45 @@ watch(pageSize, () => {
 })
 
 TagControllerService.list({ type: 0, count: 100, page: 1 }).then((res) => {
-  const tagsa = res.data.records
-  tagsa.forEach((item) => {
-    tags.value.push(item.name)
-  })
+  if (res.data && res.data.records) {
+    const tagsa = res.data.records
+    tagsa.forEach((item) => {
+      if (item.name) {
+        tags.value.push(item.name)
+      }
+    })
+  }
 })
-UserControllerService.questionCommitInfo().then((res) => {
-  userCommitInfo.value = res.data
-})
+
+// 使用替代方法获取用户提交信息
+const getUserCommitInfo = () => {
+  // 使用QuestionSubmitControllerService的userCommitInfo方法获取当前用户的提交统计
+  QuestionSubmitControllerService.userCommitInfo()
+    .then((res) => {
+      if (res.code === 200 && res.data) {
+        userCommitInfo.value = {
+          commitCount: Number(res.data.commitCount) || 0,
+          commitPassCount: Number(res.data.commitPassCount) || 0
+        }
+      } else {
+        // 如果API调用失败，使用默认值
+        userCommitInfo.value = {
+          commitCount: 0,
+          commitPassCount: 0
+        }
+      }
+    })
+    .catch(() => {
+      // 捕获错误并使用默认值
+      userCommitInfo.value = {
+        commitCount: 0,
+        commitPassCount: 0
+      }
+    })
+}
+
+getUserCommitInfo()
+
 // 处理标签点击事件的函数
 const handleTagClick = (tag: string) => {
   const index = selectedTags.value.indexOf(tag)
@@ -232,7 +272,7 @@ const handleTagClick = (tag: string) => {
     getList()
   } else {
     const filter = isFilter1Selected.value ? 1 : 0
-    fetchQuestions(4, 1, 1, 10, undefined, filter, JSON.stringify(selectedTags.value), undefined)
+    fetchQuestions(4, filter, 1, 10, undefined, filter, selectedTags.value, undefined)
   }
 }
 
@@ -253,7 +293,7 @@ const selectFilter = (filterIndex: number) => {
   }
 
   const filter = filterIndex === 1 ? 1 : 0
-  fetchQuestions(4, filter, 1, 5, undefined, filter, JSON.stringify(selectedTags.value), undefined)
+  fetchQuestions(4, filter, 1, 5, undefined, filter, selectedTags.value, undefined)
 }
 
 const getList = () => {

@@ -2,8 +2,12 @@
   <a-layout class="layout-demo">
     <a-layout-sider hide-trigger collapsible :collapsed="collapsed">
       <div class="logo" @click="router.push('/')">
-        <div v-if="!collapsed" style="padding-left: 20px; padding-top: 10px; text-align: center">
-          KUIKUI OJ
+        <div v-if="!collapsed" class="logo-wrapper">
+          <img src="@/assets/logo.png" alt="logo" />
+          <div class="title">KUIKUI OJ</div>
+        </div>
+        <div v-else class="logo-wrapper-collapsed">
+          <img src="@/assets/logo.png" alt="logo" />
         </div>
       </div>
       <a-menu
@@ -383,8 +387,59 @@ const handleBgColorChange = (color: string) => {
 </script>
 
 <style scoped>
-/* 保留原有样式 */
 .layout-demo {
+  height: 100%;
+  background-color: var(--color-fill-2);
+  border: 1px solid var(--color-border);
+}
+.layout-demo :deep(.arco-layout-sider) .logo {
+  height: 32px;
+  margin: 12px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.logo-wrapper img {
+  width: 30px;
+  height: 30px;
+}
+
+.logo-wrapper-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.logo-wrapper-collapsed img {
+  width: 30px;
+  height: 30px;
+}
+
+.title {
+  margin-left: 12px;
+  color: var(--color-text);
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* 深色模式下的标题样式 */
+:root.dark .title {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.layout-demo :deep(.arco-layout-sider-children) {
+  /* 保留原有样式 */
   height: 100vh;
   background: var(--color-background);
   border: 1px solid var(--color-border);
@@ -396,15 +451,6 @@ const handleBgColorChange = (color: string) => {
   justify-content: space-between;
   padding: 10px;
   height: 100%;
-}
-
-.layout-demo :deep(.arco-layout-sider) .logo {
-  height: 32px;
-  margin: 12px 8px;
-  background: url('../assets/logo.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  cursor: pointer;
 }
 
 ::-webkit-scrollbar {

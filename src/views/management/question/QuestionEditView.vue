@@ -21,7 +21,13 @@
       </div>
       <div>
         <div style="margin-bottom: 10px">题目内容：</div>
-        <v-md-editor v-model="formData.content" height="400px"></v-md-editor>
+        <v-md-editor 
+          v-model="formData.content" 
+          height="400px"
+          left-toolbar="undo redo | h bold italic strikethrough quote | ul ol table hr | link image code | save"
+          :disabled-menus="[]"
+          @upload-image="handleUploadImage"
+        ></v-md-editor>
       </div>
       <div style="display: flex; align-items: left; flex-direction: column">
         判题配置：
@@ -101,7 +107,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
-import { QuestionControllerService } from '@/generated'
+import { QuestionControllerService, FilleControllerService } from '@/generated'
 import { useRoute } from 'vue-router'
 
 interface TestCase {
@@ -132,6 +138,51 @@ const formData = ref<FormData>({
 })
 
 const loading = ref(false)
+
+// 处理图片上传
+const handleUploadImage = async (event: Event, insertImage: Function, files: FileList) => {
+  try {
+    // 检查是否有文件
+    if (!files || files.length === 0) {
+      Message.error('请选择要上传的图片')
+      return
+    }
+
+    // 检查文件类型
+    const file = files[0]
+    if (!file.type.startsWith('image/')) {
+      Message.error('请上传图片文件')
+      return
+    }
+
+    // 显示上传中提示
+    const loadingMsg = Message.loading({
+      content: '图片上传中...',
+      duration: 0
+    })
+
+    // 创建表单数据
+    const formData = new FormData()
+    formData.append('file', file)
+
+    // 调用上传接口
+     FilleControllerService.uploadQuestionFile(undefined, { file }).then((res)=>{
+    // 关闭上传提示
+    loadingMsg.close()
+      console.log(res.data)
+    insertImage({
+        url: "http://127.0.0.1/api/file/questionContent/"+res+".png",
+        desc: file.name
+      })
+      Message.success('图片上传成功')
+     })
+
+
+  } catch (error: any) {
+    Message.error(`图片上传失败: ${error.message || '未知错误'}`)
+    console.error('图片上传失败:', error)
+  }
+}
 
 // 处理获取到的题目数据
 const processQuestionData = (data: any) => {

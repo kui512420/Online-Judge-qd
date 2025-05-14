@@ -39,10 +39,17 @@ axios.interceptors.response.use(
             router.push('/user/login')
         }
         return response.data
-      case 40300: // 登录过期
-        Message.info('账号已过期，请重新登录')
+      case 40300: // 登录过期或账号被禁用
+        if (response.data.message && response.data.message.includes('禁用')) {
+          Message.error({
+            content: '您的账号已被禁用，请联系管理员',
+            duration: 5000
+          })
+        } else {
+          Message.info('账号已过期，请重新登录')
+        }
         localStorage.removeItem('AccessToken')
-        router.push('/login')
+        router.push('/user/login')
         return response.data
       // 你可以根据实际情况添加更多的响应码处理
       default:

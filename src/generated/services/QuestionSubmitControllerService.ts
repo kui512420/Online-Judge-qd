@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { BaseResponsePageQuestionSubmit } from '../models/BaseResponsePageQuestionSubmit';
 import type { BaseResponseString } from '../models/BaseResponseString';
+import type { BaseResponseUserCommitRequest } from '../models/BaseResponseUserCommitRequest';
 import type { SubmitListRequest } from '../models/SubmitListRequest';
 import type { SubmitRankRequest } from '../models/SubmitRankRequest';
 import type { SubmitRequest } from '../models/SubmitRequest';
@@ -64,6 +65,46 @@ export class QuestionSubmitControllerService {
             },
             body: requestBody,
             mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param accesstoken
+     * @returns BaseResponseUserCommitRequest OK
+     * @throws ApiError
+     */
+    public static userCommitInfo(
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponseUserCommitRequest> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/submit/userCommitInfo',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+        });
+    }
+    /**
+     * @param pageNum
+     * @param pageSize
+     * @param accesstoken
+     * @returns BaseResponsePageQuestionSubmit OK
+     * @throws ApiError
+     */
+    public static getAllUserSubmissions(
+        pageNum: number = 1,
+        pageSize: number = 10,
+        accesstoken?: string,
+    ): CancelablePromise<BaseResponsePageQuestionSubmit> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/submit/user/all',
+            headers: {
+                'Accesstoken': accesstoken,
+            },
+            query: {
+                'pageNum': pageNum,
+                'pageSize': pageSize,
+            },
         });
     }
 }

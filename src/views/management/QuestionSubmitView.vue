@@ -97,7 +97,7 @@
       <template #options="{ record }">
         <!-- 新增操作按钮 -->
         <div style="width: 50%; display: flex; align-items: center; justify-content: space-around">
-          <a-button size="small" @click="edit(record)" type="outline">
+          <a-button size="small" @click="showDetail(record)" type="outline">
             <template #icon>
               <icon-edit />
             </template>
@@ -118,11 +118,77 @@
       show-page-size
     />
   </a-card>
+  
+  <!-- 添加右侧抽屉 -->
+  <a-drawer
+    v-model:visible="drawerVisible"
+    width="600"
+    title="提交记录详情"
+    unmount-on-close
+    :footer="false"
+    :mask-closable="true"
+    :escToClose="true"
+  >
+    <div v-if="currentRecord" class="drawer-content">
+      <a-descriptions bordered :column="1" size="large">
+        <a-descriptions-item label="提交ID">{{ currentRecord.id }}</a-descriptions-item>
+        <a-descriptions-item label="题目ID">{{ currentRecord.questionId }}</a-descriptions-item>
+        <a-descriptions-item label="用户ID">{{ currentRecord.userId }}</a-descriptions-item>
+        <a-descriptions-item label="提交语言">{{ currentRecord.language }}</a-descriptions-item>
+        <a-descriptions-item label="提交状态">
+          <a-tag
+            :color="
+              currentRecord.status === 0
+                ? '#86909C'
+                : currentRecord.status === 1
+                  ? '#165DFF'
+                  : currentRecord.status === 2
+                    ? '#00B42A'
+                    : '#F53F3F'
+            "
+            bordered
+          >
+            {{
+              currentRecord.status === 0
+                ? '待判题'
+                : currentRecord.status === 1
+                  ? '判题中'
+                  : currentRecord.status === 2
+                    ? '成功'
+                    : '失败'
+            }}
+          </a-tag>
+        </a-descriptions-item>
+        <a-descriptions-item label="提交时间">
+          {{ formatTime(currentRecord.createTime) }}
+        </a-descriptions-item>
+        <a-descriptions-item v-if="judgeInfo && judgeInfo.length > 0" label="测试用例通过情况">
+          {{ getPassedCount(currentRecord.judgeInfo) + '/' + judgeInfo.length }}
+        </a-descriptions-item>
+        <a-descriptions-item v-if="judgeInfo && judgeInfo.length > 0" label="最大执行时间">
+          {{ getMaxExecutionTime(currentRecord.judgeInfo) }}ms
+        </a-descriptions-item>
+      </a-descriptions>
+
+      <div class="code-section">
+        <h3>提交的代码</h3>
+        <div class="code-header">
+          <a-button type="text" size="small" @click="copyCode" class="copy-button">
+            <template #icon><icon-copy /></template>
+            复制代码
+          </a-button>
+        </div>
+        <a-card>
+          <pre class="code-block"><code>{{ currentRecord.code }}</code></pre>
+        </a-card>
+      </div>
+    </div>
+  </a-drawer>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { IconDownload, IconEdit, IconDoubleDown, IconDelete } from '@arco-design/web-vue/es/icon'
+import { reactive, ref, watch, computed } from 'vue'
+import { IconDownload, IconEdit, IconDoubleDown, IconDelete, IconCopy } from '@arco-design/web-vue/es/icon'
 import {
   AiControllerService,
   QuestionControllerService,
@@ -234,9 +300,75 @@ const userInfo = ref()
 watch(pageSize, () => {
   questionList()
 })
-const edit = (item) => {
-  router.push('/management/question/edit/' + item.id)
+
+// 添加抽屉相关状态
+const drawerVisible = ref(false)
+const currentRecord = ref<any>(null)
+
+// 计算处理判题信息
+const judgeInfo = computed(() => {
+  if (!currentRecord.value || !currentRecord.value.judgeInfo) return []
+  try {
+    return JSON.parse(currentRecord.value.judgeInfo)
+  } catch (error) {
+    console.error('解析判题信息失败:', error)
+    return []
+  }
+})
+
+// 显示详情抽屉
+const showDetail = (record) => {
+  currentRecord.value = record
+  drawerVisible.value = true
 }
+
+// 格式化时间
+const formatTime = (timestamp) => {
+  if (!timestamp) return ''
+  return new Date(timestamp).toLocaleString()
+}
+
+// 获取通过的测试用例数量
+const getPassedCount = (judgeInfo) => {
+  if (!judgeInfo) return 0
+  try {
+    const parsed = JSON.parse(judgeInfo)
+    return parsed.filter(item => item.passed === 1).length
+  } catch (error) {
+    return 0
+  }
+}
+
+// 获取最大执行时间
+const getMaxExecutionTime = (judgeInfo) => {
+  if (!judgeInfo) return 0
+  try {
+    const parsed = JSON.parse(judgeInfo)
+    return Math.max(...parsed.map(item => item.time || 0))
+  } catch (error) {
+    return 0
+  }
+}
+
+// 复制代码
+const copyCode = () => {
+  if (currentRecord.value?.code) {
+    navigator.clipboard
+      .writeText(currentRecord.value.code)
+      .then(() => {
+        Message.success('代码已复制到剪贴板')
+      })
+      .catch(() => {
+        Message.error('复制失败，请重试')
+      })
+  }
+}
+
+// 修改edit方法为查看详情
+const edit = (item) => {
+  showDetail(item)
+}
+
 const updateUserRole = (item, role) => {
   UserControllerService.putUserRole(item, role).then((res) => {
     if (res.code == 200) {
@@ -372,5 +504,47 @@ questionList()
 
 .info-item div {
   margin-right: 5px;
+}
+
+/* 添加抽屉相关样式 */
+.drawer-content {
+  padding: 16px 0;
+}
+
+.code-section {
+  margin-top: 24px;
+}
+
+.code-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.code-block {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.test-cases-section {
+  margin-top: 24px;
+}
+
+.test-case-detail {
+  padding: 8px;
+}
+
+.test-result {
+  margin-bottom: 8px;
+}
+
+.test-info p {
+  margin: 4px 0;
 }
 </style>

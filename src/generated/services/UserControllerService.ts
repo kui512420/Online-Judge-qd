@@ -7,8 +7,9 @@ import type { BaseResponseInteger } from '../models/BaseResponseInteger';
 import type { BaseResponseMapObjectObject } from '../models/BaseResponseMapObjectObject';
 import type { BaseResponseMapStringString } from '../models/BaseResponseMapStringString';
 import type { BaseResponsePageUser } from '../models/BaseResponsePageUser';
+import type { BaseResponsePageUserRank } from '../models/BaseResponsePageUserRank';
 import type { BaseResponseString } from '../models/BaseResponseString';
-import type { BaseResponseUserCommitRequest } from '../models/BaseResponseUserCommitRequest';
+import type { BaseResponseUserRank } from '../models/BaseResponseUserRank';
 import type { EmailRequest } from '../models/EmailRequest';
 import type { UserInfoRequest } from '../models/UserInfoRequest';
 import type { UserListRequest } from '../models/UserListRequest';
@@ -115,6 +116,21 @@ export class UserControllerService {
     }
     /**
      * @param requestBody
+     * @returns BaseResponseInteger OK
+     * @throws ApiError
+     */
+    public static updateUserInfo(
+        requestBody: UserInfoRequest,
+    ): CancelablePromise<BaseResponseInteger> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/user/admin/user/info',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @param requestBody
      * @returns BaseResponsePageUser OK
      * @throws ApiError
      */
@@ -144,22 +160,6 @@ export class UserControllerService {
         });
     }
     /**
-     * @param accesstoken
-     * @returns BaseResponseUserCommitRequest OK
-     * @throws ApiError
-     */
-    public static questionCommitInfo(
-        accesstoken?: string,
-    ): CancelablePromise<BaseResponseUserCommitRequest> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/user/questionCommitInfo',
-            headers: {
-                'Accesstoken': accesstoken,
-            },
-        });
-    }
-    /**
      * @param requestBody
      * @returns BaseResponseMapStringString OK
      * @throws ApiError
@@ -172,16 +172,6 @@ export class UserControllerService {
             url: '/api/user/login',
             body: requestBody,
             mediaType: 'application/json',
-        });
-    }
-    /**
-     * @returns any OK
-     * @throws ApiError
-     */
-    public static export(): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/user/export',
         });
     }
     /**
@@ -228,6 +218,79 @@ export class UserControllerService {
             url: '/api/user/refreshToken',
             headers: {
                 'Accesstoken': accesstoken,
+            },
+        });
+    }
+    /**
+     * @param userId
+     * @returns BaseResponseUserRank OK
+     * @throws ApiError
+     */
+    public static getUserRankByUserId(
+        userId: number,
+    ): CancelablePromise<BaseResponseUserRank> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/rank/user/{userId}',
+            path: {
+                'userId': userId,
+            },
+        });
+    }
+    /**
+     * @param current
+     * @param pageSize
+     * @returns BaseResponsePageUserRank OK
+     * @throws ApiError
+     */
+    public static getTopUsersBySubmitCount(
+        current: number = 1,
+        pageSize: number = 10,
+    ): CancelablePromise<BaseResponsePageUserRank> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/rank/submit-count',
+            query: {
+                'current': current,
+                'pageSize': pageSize,
+            },
+        });
+    }
+    /**
+     * @param current
+     * @param pageSize
+     * @returns BaseResponsePageUserRank OK
+     * @throws ApiError
+     */
+    public static getTopUsersByAcceptRate(
+        current: number = 1,
+        pageSize: number = 10,
+    ): CancelablePromise<BaseResponsePageUserRank> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/rank/accept-rate',
+            query: {
+                'current': current,
+                'pageSize': pageSize,
+            },
+        });
+    }
+    /**
+     * @param current
+     * @param pageSize
+     * @returns BaseResponsePageUserRank OK
+     * @throws ApiError
+     */
+    public static getTopUsersByAcceptCount(
+        current: number = 1,
+        pageSize: number = 10,
+    ): CancelablePromise<BaseResponsePageUserRank> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/rank/accept-count',
+            query: {
+                'current': current,
+                'pageSize': pageSize,
             },
         });
     }

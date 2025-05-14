@@ -48,6 +48,7 @@
       <template #userAvatar="{ record }">
         <a-image
           width="70"
+          height="70"
           :src="'http://127.0.0.1/' + record.userAvatar"
           style="border-radius: 50%"
         ></a-image>
@@ -118,9 +119,10 @@
       :width="440"
       v-if="userInfo"
       ok-text="保存"
-      :hide-cancel="true"
+      :hide-cancel="false"
       :visible="visible"
       @cancel="handleCancel"
+      @ok="saveUserInfo"
       unmountOnClose
     >
       <template #title> 用户信息 </template>
@@ -332,7 +334,7 @@ const edit = (item) => {
   })
 }
 const updateUserRole = (item, role) => {
-  UserControllerService.putUserRole(item, role).then((res) => {
+  UserControllerService.putUserRole1(item, role).then((res) => {
     if (res.code == 200) {
       Message.success('修改成功！')
       userList()
@@ -358,7 +360,7 @@ const delArr = () => {
 }
 const change = (e) => {
   UserControllerService.getUserList({
-    page: 1,
+    page: e,
     size: pageSize.value,
     type: 0,
   }).then((res) => {
@@ -452,6 +454,31 @@ const search = () => {
       Message.warning('参数异常')
     }
   }
+}
+const saveUserInfo = () => {
+  // 创建用户信息请求对象
+  const userInfoRequest = {
+    id: userInfo.value.id,
+    userName: userInfo.value.userName,
+    password: userInfo.value.userPassword,
+    email: userInfo.value.email,
+    userRole: userInfo.value.userRole
+  }
+  
+  // 调用API修改用户信息
+  UserControllerService.updateUserInfo(userInfoRequest)
+    .then((res) => {
+      if (res.code === 200) {
+        Message.success('用户信息修改成功')
+        visible.value = false
+        userList() // 刷新用户列表
+      } else {
+        Message.error('用户信息修改失败：' + res.message)
+      }
+    })
+    .catch((error) => {
+      Message.error('修改失败：' + error.message)
+    })
 }
 userList()
 </script>

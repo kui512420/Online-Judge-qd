@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineProps, watch } from 'vue'
 import * as echarts from 'echarts/core'
 import {
   TitleComponent,
@@ -15,6 +15,28 @@ import { PieChart } from 'echarts/charts'
 import { LabelLayout } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import 'echarts/theme/dark' // 导入暗色主题
+
+// 定义接收的属性
+const props = defineProps({
+  chartData: {
+    type: Array,
+    default: () => [
+      { value: 85, name: '数组' },
+      { value: 70, name: '字符串' },
+      { value: 60, name: '动态规划' },
+      { value: 55, name: '树' },
+      { value: 45, name: '图论' },
+    ]
+  },
+  title: {
+    type: String,
+    default: '刷题数据统计'
+  },
+  subtitle: {
+    type: String,
+    default: '各题目类型通过率'
+  }
+})
 
 // 注册组件
 echarts.use([
@@ -30,17 +52,14 @@ echarts.use([
 const chartRef = ref<HTMLElement>()
 let myChart: echarts.ECharts | null = null
 
-const initChart = () => {
-  if (!chartRef.value) return
+const updateChart = () => {
+  if (!myChart) return
 
-  // 1. 初始化图表（使用暗色主题）
-  myChart = echarts.init(chartRef.value, 'dark')
-
-  // 2. 准备配置
+  // 准备配置
   const option = {
     title: {
-      text: '刷题数据统计',
-      subtext: '各题目类型通过率',
+      text: props.title,
+      subtext: props.subtitle,
       left: 'center',
     },
     tooltip: {
@@ -56,13 +75,7 @@ const initChart = () => {
         name: '题目类型',
         type: 'pie',
         radius: '50%',
-        data: [
-          { value: 85, name: '数组' },
-          { value: 70, name: '字符串' },
-          { value: 60, name: '动态规划' },
-          { value: 55, name: '树' },
-          { value: 45, name: '图论' },
-        ],
+        data: props.chartData,
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -74,9 +87,24 @@ const initChart = () => {
     ],
   }
 
-  // 3. 应用配置
+  // 应用配置
   myChart.setOption(option)
 }
+
+const initChart = () => {
+  if (!chartRef.value) return
+
+  // 1. 初始化图表（使用暗色主题）
+  myChart = echarts.init(chartRef.value, 'dark')
+  
+  // 2. 更新图表
+  updateChart()
+}
+
+// 监听数据变化
+watch(() => props.chartData, () => {
+  updateChart()
+}, { deep: true })
 
 // 窗口缩放处理
 const handleResize = () => myChart?.resize()

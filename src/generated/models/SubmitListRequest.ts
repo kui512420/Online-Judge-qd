@@ -9,5 +9,6 @@ export type SubmitListRequest = {
     id?: number;
     userId?: number;
     questionId?: number;
+    competitionId?: number;
 };
 

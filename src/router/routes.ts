@@ -180,6 +180,15 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/CompetitionInfo.vue'),
   },
   {
+    path: '/competitionQuestion/:competitionId/:questionId?',
+    name: '竞赛题目',
+    meta: {
+      isHidden: true,
+      access: AccessEnum.USER,
+    },
+    component: () => import('@/views/question/CompetitionQuestionView.vue'),
+  },
+  {
     path: '/questionView/:id',
     name: '题目作答页',
     component: () => import('@/views/question/QuestionSubmitView.vue'),

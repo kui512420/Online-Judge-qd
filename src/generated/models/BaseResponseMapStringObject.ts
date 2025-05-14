@@ -2,10 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type QuestionViewVo = {
-    id?: number;
-    title?: string;
-    content?: string;
-    judgeConfig?: string;
+export type BaseResponseMapStringObject = {
+    code?: number;
+    message?: string;
+    data?: Record<string, Record<string, any>>;
 };
 

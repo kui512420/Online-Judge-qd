@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BaseResponseMapStringObject } from '../models/BaseResponseMapStringObject';
 import type { BaseResponseString } from '../models/BaseResponseString';
 import type { ChatResponse } from '../models/ChatResponse';
 import type { QuestionConfingRequest } from '../models/QuestionConfingRequest';
@@ -37,6 +38,16 @@ export class AiControllerService {
             url: '/api/ai',
             body: requestBody,
             mediaType: 'application/json',
+        });
+    }
+    /**
+     * @returns BaseResponseMapStringObject OK
+     * @throws ApiError
+     */
+    public static getApiBalance(): CancelablePromise<BaseResponseMapStringObject> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/ai/balance',
         });
     }
 }

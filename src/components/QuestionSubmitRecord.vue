@@ -2,7 +2,13 @@
   <div>
     <div v-if="!props.list || props.list.length === 0" class="no-data">暂无提交记录</div>
     <div v-else>
-      <a-card v-for="(item, index) in props.list" :key="index" class="submit-card">
+      <a-card
+        v-for="(item, index) in props.list"
+        :key="index"
+        class="submit-card"
+        :class="{ 'selected-card': selectedSubmission && selectedSubmission.id === item.id }"
+        @click="selectSubmission(item)"
+      >
         <div class="submit-info">
           <span class="time">提交时间：{{ new Date(item.createTime).toLocaleString() }}</span>
           <span class="language">语言：{{ item.language }}</span>
@@ -22,8 +28,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 const props = defineProps(['list'])
+const emit = defineEmits(['select-submission'])
+
+const selectedSubmission = ref(null)
+
+const selectSubmission = (submission) => {
+  selectedSubmission.value = submission
+  emit('select-submission', submission)
+}
 
 const isValidJudgeInfo = (judgeInfo: string): boolean => {
   try {
@@ -85,7 +99,7 @@ const getMaxTime = (judgeInfo: string) => {
 const getPassedCount = (judgeInfo: string) => {
   try {
     const info = JSON.parse(judgeInfo)
-    return info.filter((item: any) => item.passed === 1).length
+    return info.filter((item: any) => item.passed === 2).length
   } catch (error) {
     return 0
   }
@@ -101,6 +115,17 @@ const getPassedCount = (judgeInfo: string) => {
 
 .submit-card {
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.selected-card {
+  border: 2px solid var(--color-primary);
 }
 
 .submit-info {

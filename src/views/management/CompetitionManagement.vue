@@ -2,22 +2,20 @@
   <management-layouts>
     <a-card title="竞赛管理" class="competition-table">
       <div class="table-header">
-        <a-input-search
-          v-model="searchValue"
-          placeholder="搜索竞赛名称"
-          style="width: 300px"
-          @search="fetchCompetitions"
-        />
+        <div>
+          <a-input-search v-model="searchValue" placeholder="搜索竞赛名称" style="width: 300px" @search="fetchCompetitions" />
+          <a-button style="margin-left: 10px" @click="resetSearch">
+            <template #icon>
+              <icon-refresh />
+            </template>
+            重置
+          </a-button>
+        </div>
         <a-button type="primary" @click="showModal('add')"> <icon-plus /> 新建竞赛 </a-button>
       </div>
 
-      <a-table
-        :columns="columns"
-        :data="competitionList"
-        :pagination="pagination"
-        @page-change="handlePageChange"
-        :loading="loading"
-      >
+      <a-table :columns="columns" :data="competitionList" :pagination="pagination" @page-change="handlePageChange"
+        :loading="loading">
         <template #status="{ record }">
           <a-tag :color="statusColor[record.status as 0 | 1 | 2]">
             {{ statusMap[record.status as 0 | 1 | 2] }}
@@ -34,12 +32,8 @@
     </a-card>
 
     <!-- 新增/编辑弹窗 -->
-    <a-modal
-      v-model:visible="modalVisible"
-      :title="modalType === 'add' ? '新建竞赛' : '编辑竞赛'"
-      @ok="handleSubmit"
-      @cancel="resetForm"
-    >
+    <a-modal v-model:visible="modalVisible" :title="modalType === 'add' ? '新建竞赛' : '编辑竞赛'" @ok="handleSubmit"
+      @cancel="resetForm">
       <a-form :model="formData">
         <a-form-item label="竞赛名称">
           <a-input v-model="formData.name" />
@@ -66,6 +60,13 @@
           </a-select>
         </a-form-item>
       </a-form>
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <a-button @click="resetFormFields">重置表单</a-button>
+          <a-button @click="modalVisible = false">取消</a-button>
+          <a-button type="primary" @click="handleSubmit">确定</a-button>
+        </div>
+      </template>
     </a-modal>
   </management-layouts>
 </template>
@@ -81,6 +82,8 @@ import type { CompetitionAddRequest } from '@/generated/models/CompetitionAddReq
 import type { CompetitionRequest } from '@/generated/models/CompetitionRequest'
 import type { QuestionRequest } from '@/generated/models/QuestionRequest'
 import type { QuestionListVo } from '@/generated/models/QuestionListVo'
+import type { BaseResponseLong } from '@/generated/models/BaseResponseLong'
+import { IconPlus, IconEdit, IconDelete, IconRefresh } from '@arco-design/web-vue/es/icon'
 
 const searchValue = ref('')
 const modalVisible = ref(false)
@@ -185,8 +188,18 @@ const showModal = async (type: string, record?: CompetitionVO) => {
     formData.startTime = record.startTime || ''
     formData.endTime = record.endTime || ''
     formData.description = record.description || ''
-    // 需要获取当前竞赛的题目列表，这里简化处理
-    formData.questionIds = []
+
+    // 加载该竞赛关联的题目
+    try {
+      const res = await CompetitionControllerService.getCompetitionQuestions(record.id!)
+      if (res.data) {
+        // 从返回的题目列表中提取题目ID
+        formData.questionIds = res.data.map(question => question.id!) || []
+      }
+    } catch (error) {
+      console.error('获取竞赛题目列表失败', error)
+      Message.error('获取竞赛题目列表失败')
+    }
   }
 }
 
@@ -225,24 +238,50 @@ const handleSubmit = async () => {
     // 检查日期格式，确保是字符串
     if (formData.startTime) {
       if (typeof formData.startTime === 'object' && formData.startTime instanceof Date) {
-        startTimeFormatted = formData.startTime.toISOString()
+        // 使用符合后端LocalDateTime的格式 (yyyy-MM-ddTHH:mm:ss)
+        const year = formData.startTime.getFullYear()
+        const month = String(formData.startTime.getMonth() + 1).padStart(2, '0')
+        const day = String(formData.startTime.getDate()).padStart(2, '0')
+        const hours = String(formData.startTime.getHours()).padStart(2, '0')
+        const minutes = String(formData.startTime.getMinutes()).padStart(2, '0')
+        const seconds = String(formData.startTime.getSeconds()).padStart(2, '0')
+        startTimeFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
       } else if (typeof formData.startTime === 'string') {
         // 确保是有效的日期字符串
         const startDate = new Date(formData.startTime)
         if (!isNaN(startDate.getTime())) {
-          startTimeFormatted = startDate.toISOString()
+          const year = startDate.getFullYear()
+          const month = String(startDate.getMonth() + 1).padStart(2, '0')
+          const day = String(startDate.getDate()).padStart(2, '0')
+          const hours = String(startDate.getHours()).padStart(2, '0')
+          const minutes = String(startDate.getMinutes()).padStart(2, '0')
+          const seconds = String(startDate.getSeconds()).padStart(2, '0')
+          startTimeFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
         }
       }
     }
 
     if (formData.endTime) {
       if (typeof formData.endTime === 'object' && formData.endTime instanceof Date) {
-        endTimeFormatted = formData.endTime.toISOString()
+        // 使用符合后端LocalDateTime的格式 (yyyy-MM-ddTHH:mm:ss)
+        const year = formData.endTime.getFullYear()
+        const month = String(formData.endTime.getMonth() + 1).padStart(2, '0')
+        const day = String(formData.endTime.getDate()).padStart(2, '0')
+        const hours = String(formData.endTime.getHours()).padStart(2, '0')
+        const minutes = String(formData.endTime.getMinutes()).padStart(2, '0')
+        const seconds = String(formData.endTime.getSeconds()).padStart(2, '0')
+        endTimeFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
       } else if (typeof formData.endTime === 'string') {
         // 确保是有效的日期字符串
         const endDate = new Date(formData.endTime)
         if (!isNaN(endDate.getTime())) {
-          endTimeFormatted = endDate.toISOString()
+          const year = endDate.getFullYear()
+          const month = String(endDate.getMonth() + 1).padStart(2, '0')
+          const day = String(endDate.getDate()).padStart(2, '0')
+          const hours = String(endDate.getHours()).padStart(2, '0')
+          const minutes = String(endDate.getMinutes()).padStart(2, '0')
+          const seconds = String(endDate.getSeconds()).padStart(2, '0')
+          endTimeFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
         }
       }
     }
@@ -299,7 +338,7 @@ const handleSubmit = async () => {
 
             console.log('直接请求响应:', directRes)
 
-            if (directRes.data.code === 0) {
+            if (directRes && directRes.code === 0) {
               Message.success('添加竞赛成功')
               resetForm()
               fetchCompetitions()
@@ -307,7 +346,7 @@ const handleSubmit = async () => {
               return
             }
 
-            Message.error(directRes.data.message || '添加竞赛失败')
+            Message.error(directRes && directRes.message ? directRes.message : '添加竞赛失败')
           } catch (axiosError) {
             console.error('备选请求失败:', axiosError)
             Message.error('添加竞赛失败，请检查网络连接')
@@ -315,11 +354,33 @@ const handleSubmit = async () => {
         }
       }
     } else {
-      // 这里需要编辑竞赛的接口，当前服务中未提供
-      // 假设有一个 updateCompetition 方法
-      Message.success('编辑竞赛成功')
-      fetchCompetitions()
-      modalVisible.value = false
+      // 编辑竞赛
+      try {
+        // 构建更新请求
+        const updateRequest = {
+          id: formData.id,
+          name: formData.name,
+          startTime: startTimeFormatted,
+          endTime: endTimeFormatted,
+          description: formData.description,
+          questionIds: formData.questionIds.length > 0 ? formData.questionIds : undefined,
+          scores: formData.questionIds.length > 0 ? formData.questionIds.map(() => 100) : undefined,
+        };
+
+        // 使用axios直接发送更新请求，因为没有生成的服务方法
+        const response = await axios.post('/api/competition/edit', updateRequest, {
+          headers: {
+            'Accesstoken': accessToken
+          }
+        });
+
+        Message.success('编辑竞赛成功');
+        fetchCompetitions();
+        modalVisible.value = false;
+      } catch (error) {
+        console.error('编辑竞赛失败', error);
+        Message.error('编辑竞赛失败');
+      }
     }
   } catch (error) {
     console.error(modalType.value === 'add' ? '添加竞赛失败' : '编辑竞赛失败', error)
@@ -335,6 +396,18 @@ const resetForm = () => {
   formData.description = ''
   formData.questionIds = []
   formData.scores = []
+}
+
+// 重置表单字段，保留id
+const resetFormFields = () => {
+  if (modalType.value === 'add') {
+    resetForm()
+  } else {
+    // 编辑模式下保留id，其他清空
+    const id = formData.id
+    resetForm()
+    formData.id = id
+  }
 }
 
 const handlePageChange = (page: number) => {
@@ -357,6 +430,13 @@ const handleDelete = async (id: number) => {
     console.error('删除竞赛失败', error)
     Message.error('删除竞赛失败')
   }
+}
+
+// 重置搜索条件
+const resetSearch = () => {
+  searchValue.value = ''
+  pagination.current = 1
+  fetchCompetitions()
 }
 </script>
 

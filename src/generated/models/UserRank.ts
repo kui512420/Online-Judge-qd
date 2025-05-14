@@ -2,11 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserInfoRequest = {
+export type UserRank = {
     id?: number;
+    userId?: number;
     userName?: string;
-    password?: string;
-    email?: string;
-    userRole?: string;
+    userAvatar?: string;
+    submitCount?: number;
+    acceptCount?: number;
 };
 

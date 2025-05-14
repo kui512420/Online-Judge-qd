@@ -10,7 +10,7 @@
         </div>
 
         <div class="card-content-right">
-          <div class="card-content-right-icon">
+          <div class="card-content-right-icon" @click="shareCompetition">
             <icon-share-internal />
             分享
           </div>
@@ -27,6 +27,7 @@
 import { IconShareInternal } from '@arco-design/web-vue/es/icon'
 import { useRouter } from 'vue-router'
 import type { CompetitionVO } from '@/generated/models/CompetitionVO'
+import { Message } from '@arco-design/web-vue'
 
 const props = defineProps<{
   competition: CompetitionVO
@@ -36,6 +37,25 @@ const router = useRouter()
 const goToCompetitionInfo = (id: number | undefined) => {
   if (id) {
     router.push('/competitionInfo/' + id)
+  }
+}
+
+const shareCompetition = () => {
+  if (props.competition.id) {
+    // 获取当前网站的域名和协议
+    const origin = window.location.origin
+    // 创建分享链接
+    const shareUrl = `${origin}/#/competitionInfo/${props.competition.id}`
+    
+    // 复制到剪贴板
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        Message.success('链接已复制到剪贴板')
+      })
+      .catch(err => {
+        console.error('复制失败:', err)
+        Message.error('复制链接失败')
+      })
   }
 }
 

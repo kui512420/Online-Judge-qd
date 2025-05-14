@@ -9,5 +9,6 @@ export type SubmitRequest = {
     language?: string;
     code?: string;
     questionId?: number;
+    competitionId?: number;
 };
 

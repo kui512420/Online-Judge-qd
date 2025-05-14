@@ -1,14 +1,7 @@
 <template>
   <div class="login-container">
-    <a-form
-      ref="formRef"
-      class="login-form"
-      :rules="rules"
-      :model="form"
-      @submit="handleSubmit"
-      label-align="left"
-      auto-label-width
-    >
+    <a-form ref="formRef" class="login-form" :rules="rules" :model="form" @submit="handleSubmit" label-align="left"
+      auto-label-width>
       <h2 class="form-title">欢迎登录</h2>
       <a-form-item field="name" :hide-label="true">
         <a-input v-model="form.name" placeholder="用户名/邮箱" allow-clear class="custom-input">
@@ -18,12 +11,7 @@
         </a-input>
       </a-form-item>
       <a-form-item field="password" :hide-label="true">
-        <a-input-password
-          v-model="form.password"
-          placeholder="密码"
-          allow-clear
-          class="custom-input"
-        >
+        <a-input-password v-model="form.password" placeholder="密码" allow-clear class="custom-input">
           <template #prefix>
             <icon-lock />
           </template>
@@ -81,12 +69,30 @@ const handleSubmit = () => {
         localStorage.setItem('AccessToken', res.data.AccessToken)
         //返回首页
         router.replace('/')
+      } else if (res.code === 40300) {
+        // 用户被禁用的特殊处理
+        Notification.error({
+          title: '账号已被禁用',
+          content: '您的账号已被禁用，请联系管理员',
+          position: 'bottomRight',
+          duration: 5000
+        })
+        // 登录失败时刷新验证码
+        changeImg()
       } else {
         Notification.error(res.message)
+        // 登录失败时刷新验证码
+        changeImg()
       }
       loginLoding.value = false
     },
-  )
+  ).catch(error => {
+    console.error('登录失败:', error);
+    loginLoding.value = false;
+    Notification.error('登录失败，请稍后重试');
+    // 登录失败时刷新验证码
+    changeImg()
+  })
 }
 const rules = {
   name: [

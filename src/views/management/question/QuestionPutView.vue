@@ -7,54 +7,30 @@
         </a-button>
         <div>
           题目标题：
-          <a-input
-            v-model="formData.title"
-            :style="{ width: '320px' }"
-            placeholder="题目标题"
-            allow-clear
-          />
+          <a-input v-model="formData.title" :style="{ width: '320px' }" placeholder="题目标题" allow-clear />
         </div>
         <div>
           题目标签：
-          <a-input-tag
-            v-model="formData.tagsArray"
-            :style="{ width: '320px' }"
-            placeholder="题目标签"
-            allow-clear
-          />
+          <a-input-tag v-model="formData.tagsArray" :style="{ width: '320px' }" placeholder="题目标签" allow-clear />
         </div>
         <div>
           <div style="margin-bottom: 10px">题目内容：</div>
-          <v-md-editor v-model="formData.content" height="400px"></v-md-editor>
+          <v-md-editor v-model="formData.content" height="400px"
+            left-toolbar="undo redo | h bold italic strikethrough quote | ul ol table hr | link image code | save"
+            :disabled-menus="[]" @upload-image="handleUploadImage"></v-md-editor>
         </div>
         <div style="display: flex; align-items: left; flex-direction: column">
           判题配置：
           <div>
             时间限制(ms)：
-            <a-input-number
-              style="margin-left: 3px; margin-bottom: 10px"
-              v-model="formData.timeLimit"
-              :style="{ width: '120px' }"
-              placeholder="时间限制"
-              :min="100"
-              :max="5000"
-              :step="100"
-              mode="button"
-              class="input-demo"
-            />
+            <a-input-number style="margin-left: 3px; margin-bottom: 10px" v-model="formData.timeLimit"
+              :style="{ width: '120px' }" placeholder="时间限制" :min="100" :max="5000" :step="100" mode="button"
+              class="input-demo" />
           </div>
           <div>
             内存限制(MB)：
-            <a-input-number
-              v-model="formData.memoryLimit"
-              :style="{ width: '120px' }"
-              placeholder="内存限制"
-              :min="10"
-              :max="1024"
-              :step="10"
-              mode="button"
-              class="input-demo"
-            />
+            <a-input-number v-model="formData.memoryLimit" :style="{ width: '120px' }" placeholder="内存限制" :min="10"
+              :max="1024" :step="10" mode="button" class="input-demo" />
           </div>
         </div>
 
@@ -64,34 +40,18 @@
             <a-button type="outline" status="warning" @click="addTestCase">新增用例</a-button>
           </div>
           <div class="test-case-list">
-            <div
-              v-for="(testCase, index) in formData.testCases"
-              :key="index"
-              class="test-case-item"
-            >
+            <div v-for="(testCase, index) in formData.testCases" :key="index" class="test-case-item">
               <div class="test-case-title">用例 {{ index + 1 }}</div>
               <div class="test-case-input">
                 <span>输入：</span>
-                <a-textarea
-                  v-model="testCase.input"
-                  placeholder="请输入测试用例输入"
-                  :auto-size="{ minRows: 2, maxRows: 5 }"
-                />
+                <a-textarea v-model="testCase.input" placeholder="请输入测试用例输入" :auto-size="{ minRows: 2, maxRows: 5 }" />
               </div>
               <div class="test-case-output">
                 <span>输出：</span>
-                <a-textarea
-                  v-model="testCase.output"
-                  placeholder="请输入测试用例预期输出"
-                  :auto-size="{ minRows: 2, maxRows: 5 }"
-                />
+                <a-textarea v-model="testCase.output" placeholder="请输入测试用例预期输出"
+                  :auto-size="{ minRows: 2, maxRows: 5 }" />
               </div>
-              <a-button
-                type="outline"
-                status="danger"
-                @click="removeTestCase(index)"
-                class="remove-btn"
-              >
+              <a-button type="outline" status="danger" @click="removeTestCase(index)" class="remove-btn">
                 删除
               </a-button>
             </div>
@@ -106,21 +66,12 @@
           <template #title> AI赋能OJ </template>
           <div>
             用例数量：
-            <a-input-number
-              v-model="questionCount"
-              :style="{ width: '320px' }"
-              class="input-demo"
-              :min="1"
-              :max="100"
-            />
+            <a-input-number v-model="questionCount" :style="{ width: '320px' }" class="input-demo" :min="1"
+              :max="100" />
           </div>
           <div style="margin: 20px 0">
             出题难度：
-            <a-select
-              v-model="questionDaf"
-              :style="{ width: '320px' }"
-              placeholder="请选择题目难度"
-            >
+            <a-select v-model="questionDaf" :style="{ width: '320px' }" placeholder="请选择题目难度">
               <a-option>高</a-option>
               <a-option>中</a-option>
               <a-option>低</a-option>
@@ -128,12 +79,8 @@
           </div>
           <div style="align-items: center">
             出题描述：
-            <a-textarea
-              v-model="questionType"
-              :style="{ width: '320px' }"
-              placeholder="请输入题目生成描述"
-              :auto-size="{ minRows: 2, maxRows: 5 }"
-            />
+            <a-textarea v-model="questionType" :style="{ width: '320px' }" placeholder="请输入题目生成描述"
+              :auto-size="{ minRows: 2, maxRows: 5 }" />
           </div>
         </a-modal>
       </a-spin>
@@ -144,7 +91,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
-import { AiControllerService, QuestionControllerService } from '@/generated'
+import { AiControllerService, QuestionControllerService, FilleControllerService } from '@/generated'
 const AIvisible = ref(false)
 const aiLoading = ref(false)
 const questionCount = ref(10)
@@ -174,6 +121,49 @@ const formData = ref<FormData>({
   memoryLimit: 256,
   testCases: [],
 })
+
+// 处理图片上传
+const handleUploadImage = async (event: Event, insertImage: Function, files: FileList) => {
+  try {
+    // 检查是否有文件
+    if (!files || files.length === 0) {
+      Message.error('请选择要上传的图片')
+      return
+    }
+
+    // 检查文件类型
+    const file = files[0]
+    if (!file.type.startsWith('image/')) {
+      Message.error('请上传图片文件')
+      return
+    }
+
+    // 显示上传中提示
+    const loadingMsg = Message.loading({
+      content: '图片上传中...',
+      duration: 0
+    })
+
+    // 创建表单数据
+    const formData = new FormData()
+    formData.append('file', file)
+
+    // 调用上传接口
+    FilleControllerService.uploadQuestionFile(undefined, { file }).then((res) => {
+      // 关闭上传提示
+      loadingMsg.close()
+      console.log(res.data)
+      insertImage({
+        url: "http://127.0.0.1/api/file/questionContent/" + res + ".png",
+        desc: file.name
+      })
+      Message.success('图片上传成功')
+    })
+  } catch (error: any) {
+    Message.error(`图片上传失败: ${error.message || '未知错误'}`)
+    console.error('图片上传失败:', error)
+  }
+}
 
 const addTestCase = () => {
   formData.value.testCases.push({
@@ -283,10 +273,7 @@ const handleOk = () => {
           memoryLimit: formData.value.memoryLimit,
           testCasesCount: formData.value.testCases.length,
         })
-      } catch (error) {
-        Message.error('解析 AI 返回数据失败')
-        console.error('解析 JSON 失败:', error, '原始数据:', jsonStr)
-      }
+      } catch (error) { }
     })
     .catch((error) => {
       aiLoading.value = false

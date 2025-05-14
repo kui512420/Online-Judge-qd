@@ -98,7 +98,7 @@ export class QuestionControllerService {
      * @returns any OK
      * @throws ApiError
      */
-    public static export1(): CancelablePromise<any> {
+    public static export(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/question/export',
