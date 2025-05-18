@@ -127,15 +127,29 @@ const formatTimestamp = (input: string | number) => {
 }
 
 // 刷新token
-const refreshToken = () => {
-  const token = localStorage.getItem('AccessToken')
-  if (token) {
-    UserControllerService.refreshToken(token).then((res) => {
-      if (res.data) {
-        localStorage.setItem('AccessToken', res.data)
-      }
-    })
-  }
+const refreshToken = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const token = localStorage.getItem('AccessToken')
+    if (token) {
+      UserControllerService.refreshToken(token).then((res) => {
+        if (res.data) {
+          localStorage.setItem('AccessToken', res.data)
+          resolve()
+        } else {
+          // Token刷新失败或未返回数据，也应视为一种完成状态，但可能需要错误处理
+          console.error('Refresh token failed or no data returned.')
+          reject(new Error('Refresh token failed'))
+        }
+      }).catch(err => {
+        console.error('Error during refreshToken API call:', err)
+        reject(err)
+      })
+    } else {
+      // 没有token，直接reject或resolve，视业务逻辑而定
+      console.warn('No AccessToken found to refresh.')
+      reject(new Error('No AccessToken to refresh'))
+    }
+  })
 }
 
 // 获取个人页面信息
@@ -149,34 +163,46 @@ const getInfos = () => {
 }
 
 // 修改名称
-const saveUserName = () => {
-  const token = localStorage.getItem('AccessToken') || ''
-  UserControllerService.setUerName(userInfo.value.userName, token).then((res) => {
+const saveUserName = async () => {
+  const token = localStorage.getItem('AccessToken') || '';
+  try {
+    const res = await UserControllerService.setUerName(userInfo.value.userName, token);
+
     if (res.code == 200) {
-      message.success('保存成功！')
-      refreshToken()
+      message.success('名称保存成功！');
+      await refreshToken();
+      userSotre.user.userName = userInfo.value.userName;
     } else if (res.message) {
-      message.error(res.message)
+      message.error(res.message);
     } else {
-      message.error('操作失败')
+      message.error('名称保存操作失败');
     }
-  })
-}
+  } catch (error) {
+    console.error('Error in saveUserName:', error);
+    message.error('处理保存名称请求时发生错误');
+  }
+};
 
 // 修改个人介绍
-const saveUserProfile = () => {
-  const token = localStorage.getItem('AccessToken') || ''
-  UserControllerService.setUserProfile(userInfo.value.userProfile, token).then((res) => {
+const saveUserProfile = async () => {
+  const token = localStorage.getItem('AccessToken') || '';
+  try {
+    const res = await UserControllerService.setUserProfile(userInfo.value.userProfile, token);
+
     if (res.code == 200) {
-      message.success('保存成功！')
-      refreshToken()
+      message.success('个人简介保存成功！');
+      await refreshToken();
+      userSotre.user.userProfile = userInfo.value.userProfile;
     } else if (res.message) {
-      message.error(res.message)
+      message.error(res.message);
     } else {
-      message.error('操作失败')
+      message.error('个人简介保存操作失败');
     }
-  })
-}
+  } catch (error) {
+    console.error('Error in saveUserProfile:', error);
+    message.error('处理保存个人简介请求时发生错误');
+  }
+};
 
 // 修改密码
 const saveUserPassowrd = () => {
@@ -200,7 +226,7 @@ const saveUserPassowrd = () => {
 }
 
 // 上传头像
-const upload = (option: any) => {
+const upload = async (option: any) => {
   const { fileItem } = option
   // 创建 FormData 对象
   const formData = new FormData()
@@ -208,17 +234,17 @@ const upload = (option: any) => {
   formData.append('file', fileItem.file)
   const fileFromFormData = formData.get('file') as Blob
   const requestBody: { file: Blob } = { file: fileFromFormData }
-  FilleControllerService.uploadFile('', requestBody)
-    .then((res) => {
-      Message.success('头像更新成功！')
-      refreshToken()
-      setTimeout(() => {
-        window.location.reload()
-      }, 1000)
-    })
-    .catch((err) => {
-      Message.error('头像更新失败！')
-    })
+  try {
+    await FilleControllerService.uploadFile('', requestBody)
+    Message.success('头像更新成功！')
+    await refreshToken()
+    setTimeout(() => {
+      window.location.reload() // 考虑是否有更好的方式更新头像而不是刷新整个页面
+    }, 1000)
+  } catch (err) {
+    Message.error('头像更新失败！')
+    console.error('Error in upload:', err)
+  }
 }
 
 // 获取提交状态对应的文本

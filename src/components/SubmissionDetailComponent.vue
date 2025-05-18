@@ -1,11 +1,6 @@
 <template>
   <div class="submission-detail-container">
-    <a-result
-      v-if="!submissionDetail"
-      status="info"
-      title="请选择一条提交记录查看详情"
-      subtitle="点击左侧的提交记录可以查看详细信息"
-    >
+    <a-result v-if="!submissionDetail" status="info" title="请选择一条提交记录查看详情" subtitle="点击左侧的提交记录可以查看详细信息">
     </a-result>
     <div v-else class="detail-content">
       <a-descriptions :title="'提交详情 #' + submissionDetail.id" bordered :column="1">
@@ -108,7 +103,7 @@ const getMaxTime = (judgeInfo: string) => {
 const getPassedCount = (judgeInfo: string) => {
   try {
     const info = JSON.parse(judgeInfo)
-    return info.filter((item: any) => item.passed === 1).length
+    return info.filter((item: any) => item.passed === 2).length
   } catch (error) {
     return 0
   }

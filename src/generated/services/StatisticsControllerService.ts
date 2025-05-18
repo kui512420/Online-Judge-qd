@@ -15,7 +15,7 @@ export class StatisticsControllerService {
     public static getUserCount(): CancelablePromise<BaseResponseLong> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/statistics/user/count',
+            url: '/api/user/statistics/user/count',
         });
     }
     /**
@@ -25,7 +25,7 @@ export class StatisticsControllerService {
     public static getSystemStatistics(): CancelablePromise<BaseResponseMapStringObject> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/statistics/system',
+            url: '/api/user/statistics/system',
         });
     }
     /**
@@ -35,7 +35,7 @@ export class StatisticsControllerService {
     public static getSubmitCount(): CancelablePromise<BaseResponseLong> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/statistics/submit/count',
+            url: '/api/user/statistics/submit/count',
         });
     }
     /**
@@ -45,7 +45,7 @@ export class StatisticsControllerService {
     public static getQuestionCount(): CancelablePromise<BaseResponseLong> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/statistics/question/count',
+            url: '/api/user/statistics/question/count',
         });
     }
     /**
@@ -55,7 +55,7 @@ export class StatisticsControllerService {
     public static getLogCount(): CancelablePromise<BaseResponseLong> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/statistics/log/count',
+            url: '/api/user/statistics/log/count',
         });
     }
 }

@@ -95,21 +95,8 @@ import { AiControllerService, QuestionControllerService, FilleControllerService 
 const AIvisible = ref(false)
 const aiLoading = ref(false)
 const questionCount = ref(10)
-const questionType = ref()
-const questionDaf = ref()
-interface TestCase {
-  input: string
-  output: string
-}
-
-interface FormData {
-  title: string
-  tagsArray: string[] // 用于前端展示和编辑
-  content: string
-  timeLimit: number
-  memoryLimit: number
-  testCases: TestCase[]
-}
+const questionType = ref<string | undefined>()
+const questionDaf = ref<string | undefined>()
 
 const loading = ref(false)
 
@@ -144,12 +131,14 @@ const handleUploadImage = async (event: Event, insertImage: Function, files: Fil
       duration: 0
     })
 
-    // 创建表单数据
-    const formData = new FormData()
-    formData.append('file', file)
+    // 创建表单数据，避免与顶层 ref 重名
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
 
     // 调用上传接口
-    FilleControllerService.uploadQuestionFile(undefined, { file }).then((res) => {
+    // 注意：FilleControllerService.uploadQuestionFile 的第二个参数是 options，其中包含 file
+    // 如果您的 generated service 期望直接传递 FormData 对象，请相应调整
+    FilleControllerService.uploadQuestionFile(undefined, { file: uploadFormData.get('file') as File }).then((res) => {
       // 关闭上传提示
       loadingMsg.close()
       console.log(res.data)
@@ -239,41 +228,47 @@ const handleOk = () => {
   AiControllerService.ai({
     questionCount: questionCount.value + '',
     questionType: questionType.value,
-    questionDifficulty: questionDaf.value,
+    questionDifficulty: questionDaf.value
   })
     .then((res) => {
       aiLoading.value = false
-      const jsonStr = res.data.replace('```json', '').replace('```', '').trim()
-      try {
-        const aiData = JSON.parse(jsonStr)
-
-        // 根据提供的AI返回数据结构进行填充
-        formData.value = {
-          title: aiData.title || '未命名题目',
-          tagsArray: aiData.tags || [],
-          content: aiData.content || '暂无题目描述',
-          timeLimit: aiData.judgeConfig?.timeLimit || 1000,
-          memoryLimit: aiData.judgeConfig?.memoryLimit || 256,
-          testCases: aiData.judgeCase || [],
+      if (res && typeof res.data === 'string') {
+        const jsonStr = res.data.replace('```json', '').replace('```', '').trim()
+        try {
+          const aiData = JSON.parse(jsonStr)
+          formData.value = {
+            title: aiData.title || '未命名题目',
+            tagsArray: aiData.tags || [],
+            content: aiData.content || '暂无题目描述',
+            timeLimit: aiData.judgeConfig?.timeLimit || 1000,
+            memoryLimit: aiData.judgeConfig?.memoryLimit || 256,
+            testCases: aiData.judgeCase || []
+          }
+          Message.success('AI 生成题目成功')
+          AIvisible.value = false
+          questionCount.value = 10
+          questionDaf.value = undefined
+          questionType.value = ''
+          console.log('AI生成数据已填充:', {
+            title: formData.value.title,
+            tags: formData.value.tagsArray,
+            contentLength: formData.value.content.length,
+            timeLimit: formData.value.timeLimit,
+            memoryLimit: formData.value.memoryLimit,
+            testCasesCount: formData.value.testCases.length
+          })
+        } catch (error) {
+          Message.error('AI数据解析失败: ' + (error instanceof Error ? error.message : '未知解析错误'))
+          console.error('解析AI返回的JSON字符串失败:', error, '原始字符串:', jsonStr)
+          formData.value.content = jsonStr
+          formData.value.title = 'AI内容 (待解析)'
+          Message.info('AI返回内容已部分加载，请检查并手动整理题目信息。')
+          AIvisible.value = false
         }
-
-        Message.success('AI 生成题目成功')
-        AIvisible.value = false
-        // 重置模态框参数
-        questionCount.value = 10
-        questionDaf.value = undefined
-        questionDesc.value = ''
-
-        // 打印调试信息
-        console.log('AI生成数据已填充:', {
-          title: formData.value.title,
-          tags: formData.value.tagsArray,
-          contentLength: formData.value.content.length,
-          timeLimit: formData.value.timeLimit,
-          memoryLimit: formData.value.memoryLimit,
-          testCasesCount: formData.value.testCases.length,
-        })
-      } catch (error) { }
+      } else {
+        Message.error('AI 服务返回数据为空或格式不正确')
+        console.error('AI 服务返回数据问题:', res)
+      }
     })
     .catch((error) => {
       aiLoading.value = false
@@ -291,6 +286,10 @@ const handleReset = () => {
     testCases: [],
   }
   Message.success('已重置表单')
+}
+
+const handleCancel = () => {
+  AIvisible.value = false
 }
 </script>
 

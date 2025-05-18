@@ -21,7 +21,7 @@ export class TagControllerService {
     ): CancelablePromise<BaseResponseString> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/tag/tag',
+            url: '/api/question/tag/tag',
             body: requestBody,
             mediaType: 'application/json',
         });
@@ -36,7 +36,7 @@ export class TagControllerService {
     ): CancelablePromise<BaseResponsePageTag> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/tag/list',
+            url: '/api/question/tag/list',
             body: requestBody,
             mediaType: 'application/json',
         });
@@ -51,7 +51,7 @@ export class TagControllerService {
     ): CancelablePromise<BaseResponseInteger> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/tag/del/{id}',
+            url: '/api/question/tag/del/{id}',
             path: {
                 'id': id,
             },

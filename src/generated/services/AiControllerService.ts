@@ -20,7 +20,7 @@ export class AiControllerService {
     ): CancelablePromise<Array<ChatResponse>> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/chat',
+            url: '/api/ai/chat',
             body: requestBody,
             mediaType: 'application/json',
         });
@@ -35,7 +35,7 @@ export class AiControllerService {
     ): CancelablePromise<BaseResponseString> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/ai',
+            url: '/api/ai/generate',
             body: requestBody,
             mediaType: 'application/json',
         });

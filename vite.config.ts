@@ -19,8 +19,8 @@ export default defineConfig({
   //服务器配置
   server: {
     //配置端口
-    host: '0.0.0.0', //本机地址
-    port: 80,  //通过5000端口号访问
+    host: '127.0.0.1', //本机地址
+    port: 80,  //通过80端口号访问
     //配置反向代理
     proxy: {
       '/api': {

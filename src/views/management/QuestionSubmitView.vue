@@ -6,26 +6,13 @@
         <a-option>题目ID</a-option>
         <a-option>用户ID</a-option>
       </a-select>
-      <a-input-search
-        v-model="searchData"
-        @click="search"
-        :style="{ width: '320px' }"
-        placeholder="请输入数据"
-        search-button
-      />
+      <a-input-search v-model="searchData" @click="search" :style="{ width: '320px' }" placeholder="请输入数据"
+        search-button />
 
       <a-button type="dashed" @click="reset"> 重置 </a-button>
     </div>
-    <a-table
-      :columns="columns"
-      row-key="id"
-      :data="dataSource"
-      column-resizable
-      :bordered="{ cell: true }"
-      :pagination="false"
-      :row-selection="rowSelection"
-      v-model:selectedKeys="selectedKeys"
-    >
+    <a-table :columns="columns" row-key="id" :data="dataSource" column-resizable :bordered="{ cell: true }"
+      :pagination="false" :row-selection="rowSelection" v-model:selectedKeys="selectedKeys">
       <template #id="{ record }">
         <a-trigger class="ellipsis" position="top" auto-fit-position :unmount-on-close="false">
           <div>{{ record.id }}</div>
@@ -49,40 +36,26 @@
         </div>
       </template>
       <template #tags="{ record }">
-        <a-tag
-          :color="getRandomColor()"
-          v-for="(item, index) in JSON.parse(record.tags)"
-          :key="index"
-          bordered
-          >{{ item }}</a-tag
-        >
+        <a-tag :color="getRandomColor()" v-for="(item, index) in JSON.parse(record.tags)" :key="index" bordered>{{ item
+          }}</a-tag>
       </template>
       <template #language="{ record }">
-        <a-tag
-          :color="
-            record.language === 'java'
-              ? '#FFB800'
-              : record.language === 'python'
-                ? '#165DFF'
-                : getRandomColor()
-          "
-          bordered
-          >{{ record.language }}</a-tag
-        >
+        <a-tag :color="record.language === 'java'
+            ? '#FFB800'
+            : record.language === 'python'
+              ? '#165DFF'
+              : getRandomColor()
+          " bordered>{{ record.language }}</a-tag>
       </template>
       <template #status="{ record }">
-        <a-tag
-          :color="
-            record.status === 0
-              ? '#86909C'
-              : record.status === 1
-                ? '#165DFF'
-                : record.status === 2
-                  ? '#00B42A'
-                  : '#F53F3F'
-          "
-          bordered
-        >
+        <a-tag :color="record.status === 0
+            ? '#86909C'
+            : record.status === 1
+              ? '#165DFF'
+              : record.status === 2
+                ? '#00B42A'
+                : '#F53F3F'
+          " bordered>
           {{
             record.status === 0
               ? '待判题'
@@ -107,28 +80,13 @@
       </template>
     </a-table>
 
-    <a-pagination
-      style="justify-content: center; margin-top: 10px"
-      v-model:page-size="pageSize"
-      :page-size-options="pageSizes"
-      @change="change"
-      :total="pagination.total"
-      show-total
-      show-jumper
-      show-page-size
-    />
+    <a-pagination style="justify-content: center; margin-top: 10px" v-model:page-size="pageSize"
+      :page-size-options="pageSizes" @change="change" :total="pagination.total" show-total show-jumper show-page-size />
   </a-card>
-  
+
   <!-- 添加右侧抽屉 -->
-  <a-drawer
-    v-model:visible="drawerVisible"
-    width="600"
-    title="提交记录详情"
-    unmount-on-close
-    :footer="false"
-    :mask-closable="true"
-    :escToClose="true"
-  >
+  <a-drawer v-model:visible="drawerVisible" width="600" title="提交记录详情" unmount-on-close :footer="false"
+    :mask-closable="true" :escToClose="true">
     <div v-if="currentRecord" class="drawer-content">
       <a-descriptions bordered :column="1" size="large">
         <a-descriptions-item label="提交ID">{{ currentRecord.id }}</a-descriptions-item>
@@ -136,18 +94,14 @@
         <a-descriptions-item label="用户ID">{{ currentRecord.userId }}</a-descriptions-item>
         <a-descriptions-item label="提交语言">{{ currentRecord.language }}</a-descriptions-item>
         <a-descriptions-item label="提交状态">
-          <a-tag
-            :color="
-              currentRecord.status === 0
-                ? '#86909C'
-                : currentRecord.status === 1
-                  ? '#165DFF'
-                  : currentRecord.status === 2
-                    ? '#00B42A'
-                    : '#F53F3F'
-            "
-            bordered
-          >
+          <a-tag :color="currentRecord.status === 0
+              ? '#86909C'
+              : currentRecord.status === 1
+                ? '#165DFF'
+                : currentRecord.status === 2
+                  ? '#00B42A'
+                  : '#F53F3F'
+            " bordered>
             {{
               currentRecord.status === 0
                 ? '待判题'
@@ -333,7 +287,7 @@ const getPassedCount = (judgeInfo) => {
   if (!judgeInfo) return 0
   try {
     const parsed = JSON.parse(judgeInfo)
-    return parsed.filter(item => item.passed === 1).length
+    return parsed.filter(item => item.passed === 2).length
   } catch (error) {
     return 0
   }

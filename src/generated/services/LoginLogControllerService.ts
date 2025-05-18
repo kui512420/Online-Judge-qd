@@ -18,7 +18,7 @@ export class LoginLogControllerService {
     ): CancelablePromise<BaseResponsePageLoginLog> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/loginLog/list',
+            url: '/api/user/loginLog/list',
             body: requestBody,
             mediaType: 'application/json',
         });

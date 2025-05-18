@@ -6,12 +6,7 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea
-        v-model="userInput"
-        @keydown.enter.prevent="sendMessage"
-        placeholder="输入消息..."
-        rows="3"
-      ></textarea>
+      <textarea v-model="userInput" @keydown.enter.prevent="sendMessage" placeholder="输入消息..." rows="3"></textarea>
       <button @click="sendMessage" :disabled="isLoading">发送</button>
     </div>
   </div>
@@ -36,7 +31,7 @@ const md = new MarkdownIt({
       try {
         const result = hljs.highlight(str, { language: lang }) as HighlightResult
         return result.value
-      } catch (__) {}
+      } catch (__) { }
     }
     return '' // 使用默认的转义
   },
@@ -109,7 +104,7 @@ const sendMessage = async () => {
     lastMessage.content = '正在思考...'
     await scrollToBottom()
 
-    const response = await fetch('http://localhost/api/chat', {
+    const response = await fetch('http://localhost/api/ai/chat', {
       method: 'POST',
       headers: {
         Accesstoken: localStorage.getItem('AccessToken') || '',
@@ -152,25 +147,29 @@ const sendMessage = async () => {
             const jsonStr = line.slice(5).trim()
             if (!jsonStr) continue
 
+            const data = JSON.parse(jsonStr) // Parse JSON once per line
             let text = ''
-            try {
-              const data = JSON.parse(jsonStr)
-              // 检查多种可能的响应格式
-              if (typeof data.result?.output?.text === 'string') {
-                text = data.result.output.text
-              } else if (typeof data.text === 'string') {
-                text = data.text
-              } else if (typeof data.content === 'string') {
-                text = data.content
-              } else if (typeof data.message === 'string') {
-                text = data.message
-              } else if (typeof data === 'string') {
-                text = data
-              }
-            } catch (jsonError) {
-              console.warn('JSON解析失败，使用原始文本:', jsonError)
-              text = jsonStr
+
+            // 检查多种可能的响应格式
+            if (typeof data.result?.output?.content === 'string') {
+              text = data.result.output.content
+            } else if (data.results && Array.isArray(data.results) && data.results.length > 0 && typeof data.results[0]?.output?.content === 'string') {
+              text = data.results[0].output.content
+            } else if (typeof data.result?.output?.text === 'string') { // Existing fallback
+              text = data.result.output.text
+            } else if (typeof data.text === 'string') { // Existing fallback
+              text = data.text
+            } else if (typeof data.content === 'string') { // Existing fallback
+              text = data.content
+            } else if (typeof data.message === 'string') { // Existing fallback
+              text = data.message
             }
+            // Note: The case `else if (typeof data === 'string')` was removed
+            // as if JSON.parse(jsonStr) succeeds and data is an object,
+            // `typeof data === 'string'` would be false.
+            // If jsonStr itself is not a valid JSON and meant to be used as raw text,
+            // that would be caught by the outer catch (e) or a more specific jsonError catch if we re-introduce it.
+            // For now, if JSON.parse fails, the line is skipped and an error is logged.
 
             // 只有当文本不为空时才累积内容
             if (text.trim()) {
@@ -181,13 +180,11 @@ const sendMessage = async () => {
             }
 
             // 检查是否是最后一条消息
-            try {
-              const data = JSON.parse(jsonStr)
-              if (data.result?.metadata?.finishReason === 'STOP') {
-                break
-              }
-            } catch (e) {
-              // 忽略解析错误，继续处理下一行
+            // The data object is already parsed, use it directly.
+            if (data.result?.metadata?.finishReason === 'STOP') {
+              // Stop processing further lines in this chunk.
+              // The outer while loop will break if reader.read() is done.
+              break
             }
           } catch (e) {
             console.error('Error processing SSE data:', e, line)
@@ -218,6 +215,7 @@ const sendMessage = async () => {
 
     // 如果累积内容为空，设置一个默认回复
     if (!accumulatedContent.trim()) {
+
       const lastMessage = messages.value[messages.value.length - 1]
       lastMessage.content = '抱歉，我没有收到完整的回复。请再试一次。'
     }

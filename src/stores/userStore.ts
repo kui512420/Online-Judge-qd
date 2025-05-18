@@ -74,14 +74,14 @@ export const useUserStore = defineStore('user', () => {
 
   const login = async () => {
     await UserControllerService.getLogin().then((res) => {
-      user.value.id = res.data?.id ?? ''
-      user.value.userName = res.data?.userName ?? ''
-      user.value.email = res.data?.email ?? ''
-      user.value.userProfile = res.data?.userProfile ?? ''
-      user.value.createTime = res.data?.createTime
-      user.value.userAvatar = res.data?.userAvatar ?? ''
-      user.value.userAccount = res.data?.userAccount ?? ''
-      user.value.userRole = res.data?.userRole ?? AccessEnum.NOT_LOGIN
+      user.value.id = String(res.data?.id ?? '')
+      user.value.userName = String(res.data?.userName ?? '')
+      user.value.email = String(res.data?.email ?? '')
+      user.value.userProfile = String(res.data?.userProfile ?? '')
+      user.value.createTime = String(res.data?.createTime ?? '')
+      user.value.userAvatar = String(res.data?.userAvatar ?? '')
+      user.value.userAccount = String(res.data?.userAccount ?? '')
+      user.value.userRole = String(res.data?.userRole ?? AccessEnum.NOT_LOGIN)
     })
   }
   return {
