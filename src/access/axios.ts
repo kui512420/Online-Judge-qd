@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Message } from '@arco-design/web-vue'
 import router from '@/router'
 const service = axios.create({
-  url: 'http://127.0.0.1',
+  url: 'http://oj.kuikui.space',
   withCredentials: true,
 })
 

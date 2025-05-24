@@ -57,4 +57,21 @@ export class TagControllerService {
             },
         });
     }
+    /**
+     * 获取热门标签
+     * @param limit 可选参数，限制返回的标签数量，默认为10
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static getPopularTags(
+        limit?: number,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/question/tag/popular',
+            query: {
+                'limit': limit,
+            },
+        });
+    }
 }

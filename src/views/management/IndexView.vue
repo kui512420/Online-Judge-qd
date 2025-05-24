@@ -133,32 +133,53 @@ const fetchApiBalance = async () => {
 // 获取题目标签统计数据
 const fetchQuestionTagStats = async () => {
   try {
-    // 获取标签列表
-    const tagsResponse = await TagControllerService.list({
-      page: 1,
-      count: 5
-    }).catch(() => {
-      console.log('使用默认标签数据')
-      return { code: -1 }
-    })
+    // 首先尝试使用TagControllerService的热门标签接口
+    const popularTagsResponse = await TagControllerService.getPopularTags(5)
+      .catch(() => {
+        console.log('TagController热门标签接口调用失败，尝试备用方案')
+        return { code: -1 }
+      })
     
-    if ((tagsResponse.code === 0 || tagsResponse.code === 200) && tagsResponse.data) {
-      const tags = tagsResponse.data.records || []
+    if ((popularTagsResponse.code === 0 || popularTagsResponse.code === 200) && popularTagsResponse.data) {
+      const popularTags = popularTagsResponse.data || []
       
-      // 如果有标签数据，转换为图表数据格式
-      if (tags.length > 0) {
-        // 转换标签数据为图表数据
-        const chartData = tags.map(tag => ({
-          value: Math.floor(Math.random() * 100) + 1, // 生成1-100的随机数
+      // 如果有热门标签数据，转换为图表数据格式
+      if (popularTags.length > 0) {
+        const chartData = popularTags.map(tag => ({
+          value: tag.value || 0, // 使用真实的使用次数
           name: tag.name || '未知标签'
         }))
         
         pieChartData.value = chartData
-      } else {
-        // 没有标签数据时使用默认数据
-        console.log('没有标签数据，使用默认数据')
+        console.log('成功获取热门标签统计数据:', chartData)
+        return // 成功获取数据，直接返回
       }
     }
+    
+    // 备用方案：尝试调用QuestionControllerService的前4个热门标签接口
+    const top4TagsResponse = await QuestionControllerService.getTop4PopularTags()
+      .catch(() => {
+        console.log('QuestionController热门标签接口也失败')
+        return { code: -1 }
+      })
+    
+    if ((top4TagsResponse.code === 0 || top4TagsResponse.code === 200) && top4TagsResponse.data) {
+      const top4Tags = top4TagsResponse.data || []
+      
+      if (top4Tags.length > 0) {
+        const chartData = top4Tags.map(tag => ({
+          value: tag.count || 0, // 使用真实的数量
+          name: tag.tagName || '未知标签'
+        }))
+        
+        pieChartData.value = chartData
+        console.log('成功获取前4热门标签统计数据:', chartData)
+        return // 成功获取数据，直接返回
+      }
+    }
+    
+    console.log('所有标签统计接口都失败，使用默认数据')
+    
   } catch (error) {
     console.error('获取标签统计数据失败:', error)
     // 默认数据已在ref中初始化
@@ -183,8 +204,6 @@ const fetchStatistics = async () => {
       
       console.log('成功获取统计数据:', statisticsResponse.data)
     } else {
-      console.error('统计数据接口返回错误状态码:', statisticsResponse.code)
-      Message.error('获取统计数据失败')
       
       // 如果统一接口失败，尝试单独获取各项数据
       try {

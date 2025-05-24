@@ -152,4 +152,15 @@ export class QuestionControllerService {
             },
         });
     }
+    /**
+     * 获取数量最多的前4个题目标签及其数量
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static getTop4PopularTags(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/question/popularTags',
+        });
+    }
 }

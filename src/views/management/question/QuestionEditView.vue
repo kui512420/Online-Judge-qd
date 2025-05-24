@@ -171,7 +171,7 @@ const handleUploadImage = async (event: Event, insertImage: Function, files: Fil
     loadingMsg.close()
       console.log(res.data)
     insertImage({
-        url: "http://127.0.0.1/api/file/questionContent/"+res+".png",
+        url: "http://oj.kuikui.space/api/file/questionContent/"+res+".png",
         desc: file.name
       })
       Message.success('图片上传成功')

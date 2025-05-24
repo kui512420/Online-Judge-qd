@@ -49,7 +49,7 @@
         <a-image
           width="70"
           height="70"
-          :src="'http://127.0.0.1/' + record.userAvatar"
+          :src="'http://oj.kuikui.space/' + record.userAvatar"
           style="border-radius: 50%"
         ></a-image>
       </template>

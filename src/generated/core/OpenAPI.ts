@@ -20,7 +20,7 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-    BASE: 'http://127.0.0.1',
+    BASE: 'http://oj.kuikui.space',
     VERSION: '0',
     WITH_CREDENTIALS: true,
     CREDENTIALS: 'include',

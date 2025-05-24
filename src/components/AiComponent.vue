@@ -104,7 +104,7 @@ const sendMessage = async () => {
     lastMessage.content = '正在思考...'
     await scrollToBottom()
 
-    const response = await fetch('http://localhost/api/ai/chat', {
+    const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: {
         Accesstoken: localStorage.getItem('AccessToken') || '',
